@@ -16,6 +16,7 @@ def disabled_input(prompt=None):
 class SupressErrs:
     def __init__(self, io):
         self.io = io
+
     def __enter__(self):
         pass
 
@@ -25,7 +26,27 @@ class SupressErrs:
         return True
 
 
-def interpret(source):
+class UrlArguments:
+    __slots__ = ("args", "kwargs")
+
+    def __init__(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+
+    @classmethod
+    def parse(cls, s):
+        a = list()
+        kw = dict()
+        for p in s.split("&"):
+            if "=" in p:
+                kw.__setitem__(*p.split("=", maxsplit=1))
+            else:
+                a.append(p)
+
+        return cls(*a, **kw)
+
+
+def interpret(source, args):
     stdout = sys.stdout
     stderr = sys.stderr
     phpout = StringIO()
@@ -34,7 +55,7 @@ def interpret(source):
 
     pos = 0
 
-    gv, lv = {"input": disabled_input}, dict()
+    gv, lv = {"input": disabled_input, "url_arguments": UrlArguments.parse(args)}, dict()
 
     # modules = {"sys": deepcopy(sys.modules["sys"])}
 
@@ -54,9 +75,11 @@ def interpret(source):
         ))
 
         script = re.sub(r"(?<=\n)" + " " * minimal_indent, "", script)
-
-        with SupressErrs(phpout):
-            exec(script, gv)
+        try:
+            with SupressErrs(phpout):
+                exec(script, gv)
+        except SystemExit:
+            pass
         pos = match.end()
 
     sys.stdout = stdout
@@ -66,16 +89,16 @@ def interpret(source):
     return phpout.read()
 
 
-def interpret_as_subprocess(fin_path, py_path=sys.executable, timeout=2):
-    return subprocess.check_output([py_path, __file__, fin_path], timeout=timeout)
+def interpret_as_subprocess(fin_path, args="", py_path=sys.executable, timeout=2):
+    return subprocess.check_output([py_path, __file__, fin_path, args], timeout=timeout)
 
 
-def interpret_from_file(fin_path):
+def interpret_from_file(fin_path, args):
     with open(fin_path) as fin:
         source = fin.read()
 
-    return interpret(source)
+    return interpret(source, args)
 
 
 if __name__ == '__main__':
-    print(interpret_from_file(sys.argv[1]))
+    print(interpret_from_file(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else ""))
