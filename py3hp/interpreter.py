@@ -14,10 +14,14 @@ def disabled_input(prompt=None):
 
 
 class SupressErrs:
+    def __init__(self, io):
+        self.io = io
     def __enter__(self):
         pass
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is not None:
+            self.io.write(f"{exc_type.__name__}: {str(exc_val)}")
         return True
 
 
@@ -51,7 +55,7 @@ def interpret(source):
 
         script = re.sub(r"(?<=\n)" + " " * minimal_indent, "", script)
 
-        with SupressErrs():
+        with SupressErrs(phpout):
             exec(script, gv)
         pos = match.end()
 
