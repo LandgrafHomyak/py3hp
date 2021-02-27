@@ -1,8 +1,8 @@
-# **Installing**
+## **Installing**
 
 `pip install git+https://github.com/LandgrafHomyak/Python-Hypertext-Preprocessor.git`
 
-# **Using**
+## **Using**
 
 ```python
 
@@ -17,10 +17,10 @@ page = py3hp.interpret_as_subprocess("""
         print(url_arguments.args)
         print(url_arguments.kwargs)
     ?> 
-""")
+""", "abc&def&g=7&h=8&i=9&j=10")
 
 with open("hello_world.txt", "wb") as fout:
-    fout.write(page, "abc&def&g=7&h=8&i=9&j=10")
+    fout.write(page)
 ```
 ```python
 
