@@ -14,11 +14,13 @@ import py3hp
 page = py3hp.interpret_as_subprocess("""
     <?python3
         print("Hello world!")
+        print(url_arguments.args)
+        print(url_arguments.kwargs)
     ?> 
 """)
 
 with open("hello_world.txt", "wb") as fout:
-    fout.write(page)
+    fout.write(page, "abc&def&g=7&h=8&i=9&j=10")
 ```
 ```python
 
