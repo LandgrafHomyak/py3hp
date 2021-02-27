@@ -1,7 +1,7 @@
 import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from interpreter import interpret_as_subprocess
+from .interpreter import interpret_as_subprocess
 
 
 def serve_forever(root_path, port=8080, host="localhost"):
