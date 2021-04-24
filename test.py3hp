@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            pix {
+                margin: 0;
+                height: 1px;
+                width: 100%;
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <?python3
+            def gradient(red, green, blue):
+                if isinstance(red, int):
+                    red = (red,) * 256
+                if isinstance(green, int):
+                    green = (green,) * 256
+                if isinstance(blue, int):
+                    blue = (blue,) * 256
+
+                yield from map(lambda r, g, b: hex((r << 16) + (g << 8) + b)[2:].zfill(6), red, green, blue)
+
+            def draw_lines(colors):
+                for color in colors:
+                    print(f"<pix style='background:#{color}'></pix>")
+
+            draw_lines(gradient(0, 0, range(0, 256, 1)))
+            draw_lines(gradient(0, range(0, 256, 1), 255))
+            draw_lines(gradient(0, 255, range(255, -1, -1)))
+            draw_lines(gradient(range(0, 256, 1), 255, 0))
+            draw_lines(gradient(255, range(255, -1, -1), 0))
+            draw_lines(gradient(255, 0, range(0, 256, 1)))
+            draw_lines(gradient(255, range(0, 256, 1), 255))
+
+        ?>
+    </body>
+</html>
