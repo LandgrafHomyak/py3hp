@@ -1,4 +1,4 @@
-from distutils.core import Extension, setup
+from setuptools import Extension, setup
 
 ext = Extension(
     name="_py3hp",
