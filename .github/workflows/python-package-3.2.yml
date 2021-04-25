@@ -28,7 +28,7 @@ jobs:
         run: |
           git clone https://github.com/pypa/setuptools
           cd setuptools
-          git checkout 78d61e2deaed2a016b0b0f8ed908609123eaa88c
+          git checkout cab9d9c40afac011cc7e12989dc387094a4f1285 # v18.4, latest for python3.2
           python setup.py install
           cd ..
 #          python -c "import shutil; shutil.rmtree('setuptools')"

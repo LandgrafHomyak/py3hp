@@ -1,7 +1,10 @@
 #include <Python.h>
-#include "page.h"
-#include "code.h"
+//#include "page.h"
+//#include "_code.h"
+#include "code/parser.h"
+#include "code/class.h"
 
+/*
 static PyObject *pages_pool = NULL;
 
 static PyObject *Interpret(PyObject *module, PyObject *args, PyObject *kwargs)
@@ -53,11 +56,18 @@ static PyObject *Interpret(PyObject *module, PyObject *args, PyObject *kwargs)
     }
 
     return self;
+}*/
+
+static PyObject *_Code_Parser_AlignIndentO(PyObject *__module__, PyObject *source)
+{
+    return Code_Parser_AlignIndent(source);
 }
 
 static PyMethodDef module_functions[] = {
-        {"interpret", (PyCFunction) Interpret,    METH_VARARGS | METH_KEYWORDS, ""},
-        {"compile",   (PyCFunction) Code_Compile, METH_O, ""},
+        /*{"interpret", (PyCFunction) Interpret,    METH_VARARGS | METH_KEYWORDS, ""},
+        {"compile",   (PyCFunction) Code_Compile, METH_O, ""},*/
+        {"Code_Parser_AlignIndentO", (PyCFunction) _Code_Parser_AlignIndentO, METH_O,             ""},
+        {"compile_s",                (PyCFunction) Py3hpCode_CompileS, METH_VARARGS | METH_KEYWORDS, ""},
         {NULL}
 };
 
@@ -73,39 +83,15 @@ PyMODINIT_FUNC PyInit__py3hp(void)
 {
     PyObject *module;
 
-    module = PyImport_ImportModule("io");
-    if (module == NULL)
-    {
-        return NULL;
-    }
-    StringIO_Type = (PyTypeObject *) PyObject_GetAttrString(module, "StringIO");
-    Py_DECREF(module);
-    if (StringIO_Type == NULL)
-    {
-        return NULL;
-    }
-
     module = PyModule_Create(&module_def);
     if (module == NULL)
     {
         return NULL;
     }
-    if (PyType_Ready(&Page_Type))
-    {
-        Py_DECREF(module);
-        return NULL;
-    }
 
-    pages_pool = PySet_New(NULL);
-    if (pages_pool == NULL)
-    {
-        Py_DECREF(module);
-        return NULL;
-    }
-
-
-
-//    PyModule_AddObject(module, "any", (PyObject *)&NULL);
+    Code_Parser_Init();
+    Code_Class_Init();
+    PyModule_AddObject(module, "any", (PyObject *) Py_None);
 
     return module;
 }

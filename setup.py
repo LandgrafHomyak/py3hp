@@ -4,8 +4,10 @@ ext = Extension(
     name="_py3hp",
     sources=[
         "./_py3hp/py3hp.c",
-        "./_py3hp/page.c",
-        "./_py3hp/code.c",
+        # "./_py3hp/code/parser.h",
+        "./_py3hp/code/parser.c",
+        "./_py3hp/code/class.c",
+        # "./_py3hp/code.c",
     ]
 )
 
