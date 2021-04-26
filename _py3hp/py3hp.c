@@ -3,6 +3,7 @@
 //#include "_code.h"
 #include "code/parser.h"
 #include "code/class.h"
+#include "code.h"
 
 /*
 static PyObject *pages_pool = NULL;
@@ -58,22 +59,14 @@ static PyObject *Interpret(PyObject *module, PyObject *args, PyObject *kwargs)
     return self;
 }*/
 
-static PyObject *_Code_Parser_AlignIndentO(PyObject *__module__, PyObject *source)
-{
-    return Code_Parser_AlignIndent(source);
-}
-
 static PyMethodDef module_functions[] = {
-        /*{"interpret", (PyCFunction) Interpret,    METH_VARARGS | METH_KEYWORDS, ""},
-        {"compile",   (PyCFunction) Code_Compile, METH_O, ""},*/
-        {"Code_Parser_AlignIndentO", (PyCFunction) _Code_Parser_AlignIndentO, METH_O,             ""},
-        {"compile_s",                (PyCFunction) Py3hpCode_CompileS, METH_VARARGS | METH_KEYWORDS, ""},
+        {"compile", (PyCFunction) Py3hp_Compile_O, METH_VARARGS | METH_KEYWORDS, ""},
         {NULL}
 };
 
 static struct PyModuleDef module_def = {
         PyModuleDef_HEAD_INIT,
-        "py3hp",
+        "_py3hp",
         "",
         -1,
         module_functions
@@ -89,9 +82,9 @@ PyMODINIT_FUNC PyInit__py3hp(void)
         return NULL;
     }
 
-    Code_Parser_Init();
-    Code_Class_Init();
-    PyModule_AddObject(module, "any", (PyObject *) Py_None);
+    if (Code_Init(module) == -1)
+        return NULL;
+
 
     return module;
 }

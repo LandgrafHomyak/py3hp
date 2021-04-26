@@ -1,7 +1,7 @@
 import _py3hp as py3hp
 
 page = """
-abc
+abc  
 <?3= "inline" ?>
 def
 <?python3
@@ -9,11 +9,5 @@ def
 ?>
 ghi
 """
-
-co = py3hp.compile_s(page)
-print(*map(repr, co), sep="\n")
-
-print("-----------------")
-
-print(eval(co[1]))
-exec(co[3])
+co = py3hp.compile(page)
+print(*co, sep="\n")

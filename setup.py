@@ -1,12 +1,16 @@
-from setuptools import Extension, setup
+from distutils.core import Extension, setup
 
-ext = Extension(
+core_ext = Extension(
     name="_py3hp",
     sources=[
         "./_py3hp/py3hp.c",
         # "./_py3hp/code/parser.h",
         "./_py3hp/code/parser.c",
         "./_py3hp/code/class.c",
+        "./_py3hp/code/iterator.c",
+        "./_py3hp/code/commandtype.c",
+        "./_py3hp/code/highlevel.c",
+        "./_py3hp/code.c",
         # "./_py3hp/code.c",
     ]
 )
@@ -14,7 +18,7 @@ ext = Extension(
 setup(
     name="py3hp",
     ext_modules=[
-        ext,
+        core_ext,
     ],
 
     # ext_package="py3hp",
