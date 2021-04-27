@@ -167,8 +167,8 @@ PyObject *Py3hp_Compile_O(PyObject *module, PyObject *args, PyObject *kwargs)
         }
         else if (ref.type == Py3hpCode_Command_EVAL)
         {
-//            memcpy(program_string, string + ref.code_start, ref.code_end - ref.code_start);
-//            program_string[ref.code_end - ref.code_start] = '\0';
+/*            memcpy(program_string, string + ref.code_start, ref.code_end - ref.code_start); */
+/*            program_string[ref.code_end - ref.code_start] = '\0'; */
 
             commands[commands_len - 1].pointer.code = Py_CompileString(program_string, "<py3hp block frame>", Py_eval_input);
         }

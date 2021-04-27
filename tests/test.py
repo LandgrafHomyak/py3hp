@@ -1,6 +1,6 @@
-import _py3hp as py3hp
+import py3hp.core as core
 
-page = """
+page = b"""
 abc  
 <?3= "inline" ?>
 def
@@ -9,5 +9,17 @@ def
 ?>
 ghi
 """
-co = py3hp.compile(page)
+co = core.compile(page)
+
+
+class readio:
+    def read(self):
+        return "1234"
+
+
+print(co, sep="\n")
 print(*co, sep="\n")
+
+import json
+
+json.load

@@ -1,5 +1,5 @@
 build
-venv
+venv*
 .jython_cache
 dist
 *.egg*

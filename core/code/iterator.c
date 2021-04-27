@@ -23,28 +23,38 @@ static Py3hpCode_Iterator_Object *Py3hpCode_Iterator_Iter(Py3hpCode_Iterator_Obj
     return self;
 }
 
-static PyObject *Py3hpCode_Iterator_Next(Py3hpCode_Iterator_Object *self)
+PyObject *Py3hpCode_GetItem(Py3hpCode_Object *self, Py_ssize_t i)
 {
-    PyObject *tuple;
     PyObject *bytes;
     PyObject *string;
     PyObject *elem;
+    PyObject *tuple;
 
-    if (self->i >= Py_SIZE(self->master))
+
+    if (i < 0)
     {
+        i += Py_SIZE(self);
+    }
+
+    if (i < 0 || i >= Py_SIZE(self))
+    {
+        PyErr_Format(
+                PyExc_IndexError,
+                "py3hp_code index out of range"
+        );
         return NULL;
     }
 
-    switch (self->master->commands[self->i].type)
+    switch (self->commands[i].type)
     {
         case Py3hpCode_Command_RAW:
-            bytes = PyBytes_FromStringAndSize(self->master->commands[self->i].pointer.raw, self->master->commands[self->i].len);
+            bytes = PyBytes_FromStringAndSize(self->commands[i].pointer.raw, self->commands[i].len);
             if (bytes == NULL)
             {
                 return NULL;
             }
 
-            if (Py_TYPE(self->master) == &Py3hpCodeStr_Type)
+            if (Py_TYPE(self) == &Py3hpCodeStr_Type)
             {
                 string = PyUnicode_FromEncodedObject(bytes, "utf-8", NULL);
                 Py_DECREF(bytes);
@@ -61,28 +71,45 @@ static PyObject *Py3hpCode_Iterator_Next(Py3hpCode_Iterator_Object *self)
             break;
         case Py3hpCode_Command_EVAL:
         case Py3hpCode_Command_EXEC:
-            elem = self->master->commands[self->i].pointer.code;
+            elem = self->commands[i].pointer.code;
             Py_INCREF(elem);
             break;
         default:
             PyErr_Format(
                     PyExc_RuntimeError,
                     "Unknown type of command no. %zd in %R (%d)",
-                    self->i,
-                    self->master,
-                    self->master->commands[self->i].type
+                    i,
+                    self,
+                    self->commands[i].type
             );
             break;
     }
 
-    tuple = Py_BuildValue("(OO)", elem, Py3hpCode_CommandType_Get(self->master->commands[self->i].type));
+    tuple = Py_BuildValue("(OO)", elem, Py3hpCode_CommandType_Get(self->commands[i].type));
     Py_DECREF(elem);
     if (tuple == NULL)
     {
         return NULL;
     }
 
-    self->i++;
+    return tuple;
+}
+
+static PyObject *Py3hpCode_Iterator_Next(Py3hpCode_Iterator_Object *self)
+{
+    PyObject *tuple;
+
+    if (self->i >= Py_SIZE(self->master))
+    {
+        return NULL;
+    }
+
+    tuple = Py3hpCode_GetItem(self->master, self->i++);
+
+    if (tuple == NULL)
+    {
+        return NULL;
+    }
 
     return tuple;
 }

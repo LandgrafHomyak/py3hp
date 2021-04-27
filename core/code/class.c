@@ -36,6 +36,16 @@ static void Py3hpCode_Dealloc(Py3hpCode_Object *self)
     Py_TYPE(self)->tp_free(self);
 }
 
+static Py_ssize_t Py3hpCode_Len(Py3hpCode_Object *self)
+{
+    return Py_SIZE(self);
+}
+
+static PySequenceMethods Py3hpCode_Sequence = {
+        .sq_length = (lenfunc) Py3hpCode_Len,
+        .sq_item = (ssizeargfunc) Py3hpCode_GetItem,
+};
+
 
 PyTypeObject Py3hpCodeBytes_Type = {
         PyVarObject_HEAD_INIT(NULL, 0)
@@ -46,6 +56,7 @@ PyTypeObject Py3hpCodeBytes_Type = {
         .tp_new = NULL,
         .tp_dealloc = (destructor) Py3hpCode_Dealloc,
         .tp_iter = (getiterfunc) Py3hpCode_Iter,
+        .tp_as_sequence = &Py3hpCode_Sequence
 };
 
 PyTypeObject Py3hpCodeStr_Type = {
