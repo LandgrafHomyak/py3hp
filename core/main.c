@@ -43,6 +43,7 @@ PyMODINIT_FUNC initcore(void)
 #endif
 {
     PyObject *module;
+    PyObject *temp_object;
 #if PY_VERSION_HEX >= 0x02020000
     if (PyType_Ready(&Py3hp_Core_ParserIterator_Type) || PyType_Ready(&Py3hp_Core_ParserMatch_Type))
     {
@@ -67,6 +68,23 @@ PyMODINIT_FUNC initcore(void)
         return;
 #endif
     }
+
+#if PY_VERSION_HEX >= 0x03000000
+#define ADD_PARSER_ENUM_VALUE(NAME) temp_object=PyLong_FromLong(Py3hp_Core_StatementType_##NAME);if(temp_object==NULL){return NULL;}if(PyModule_AddObject(module,#NAME,temp_object)!=0){Py_DECREF(temp_object);return NULL;}Py_DECREF(temp_object)
+#else
+#define ADD_PARSER_ENUM_VALUE(NAME) temp_object=PyLong_FromLong(Py3hp_Core_StatementType_##NAME);if(temp_object==NULL){return;}if(PyModule_AddObject(module,#NAME,temp_object)!=0){Py_DECREF(temp_object);return;}Py_DECREF(temp_object)
+#endif
+    ADD_PARSER_ENUM_VALUE(RAW);
+    ADD_PARSER_ENUM_VALUE(INLINE);
+    ADD_PARSER_ENUM_VALUE(BLOCK);
+    ADD_PARSER_ENUM_VALUE(INLINE3);
+    ADD_PARSER_ENUM_VALUE(BLOCK3);
+    ADD_PARSER_ENUM_VALUE(INLINE2);
+    ADD_PARSER_ENUM_VALUE(BLOCK2);
+    ADD_PARSER_ENUM_VALUE(INLINE1);
+    ADD_PARSER_ENUM_VALUE(BLOCK1);
+#undef ADD_PARSER_ENUM_VALUE
+
 #if PY_VERSION_HEX >= 0x03000000
     return module;
 #else
