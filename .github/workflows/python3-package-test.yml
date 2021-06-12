@@ -52,3 +52,7 @@ jobs:
         run: |
           ./..bin/cpython/python -V
           sudo ./..bin/cpython/python setup.py install
+      - name: Run tests
+        run: |
+          ./..bin/cpython/python -V
+          ./..bin/cpython/python ./tests/test.py

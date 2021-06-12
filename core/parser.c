@@ -79,11 +79,14 @@ PY3HP_LOW_API Py3hp_Core_ParserMatch Py3hp_Core_Parser_Next(const char *string, 
                             {
                                 switch (string[i + 2])
                                 {
+                                    case '1':
+                                        state->code_match.type = Py3hp_Core_StatementType_INLINE1;
+                                        break;
                                     case '2':
-                                        state->code_match.type = Py3hp_Core_StatementType_INLINE3;
+                                        state->code_match.type = Py3hp_Core_StatementType_INLINE2;
                                         break;
                                     case '3':
-                                        state->code_match.type = Py3hp_Core_StatementType_INLINE2;
+                                        state->code_match.type = Py3hp_Core_StatementType_INLINE3;
                                         break;
                                 }
                                 state->raw_start = state->pos;
@@ -103,11 +106,14 @@ PY3HP_LOW_API Py3hp_Core_ParserMatch Py3hp_Core_Parser_Next(const char *string, 
                             {
                                 switch (string[i + 8])
                                 {
+                                    case '1':
+                                        state->code_match.type = Py3hp_Core_StatementType_BLOCK1;
+                                        break;
                                     case '2':
-                                        state->code_match.type = Py3hp_Core_StatementType_BLOCK3;
+                                        state->code_match.type = Py3hp_Core_StatementType_BLOCK2;
                                         break;
                                     case '3':
-                                        state->code_match.type = Py3hp_Core_StatementType_BLOCK2;
+                                        state->code_match.type = Py3hp_Core_StatementType_BLOCK3;
                                         break;
                                 }
                                 state->raw_start = state->pos;

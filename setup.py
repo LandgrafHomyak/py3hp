@@ -6,7 +6,8 @@ core_ext = Extension(
     sources=[
         "./core/main.c",
         "./core/encoding.c",
-        "./core/parser.c"
+        "./core/parser.c",
+        "./core/compiler.c"
     ],
 )
 

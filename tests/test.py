@@ -11,4 +11,6 @@ print(core.align("""                 o
 
    o"""))
 print(core.RAW)
-print(*core.parse("3rewwe<?3= ?>"))
+print(*list(core.parse("sdndskfnsf<?3=print(20)?>0")))
+
+print(*core.compile("sdndskfnsf<?3=print(20)?>0", "<test>"))

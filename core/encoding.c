@@ -67,7 +67,7 @@ PY3HP_LOW_API char *Py3hp_Core_EncodeString(PyObject *object, Py_ssize_t *p_len)
 }
 
 
-PY3HP_LOW_API PyObject *Py3hp_Core_DecodeString(char *raw, Py_ssize_t start, Py_ssize_t len)
+PY3HP_LOW_API PyObject *Py3hp_Core_DecodeString(const char *raw, Py_ssize_t start, Py_ssize_t len)
 {
     PyObject *object;
 
