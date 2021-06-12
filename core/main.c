@@ -70,9 +70,9 @@ PyMODINIT_FUNC initcore(void)
     }
 
 #if PY_VERSION_HEX >= 0x03000000
-#define ADD_PARSER_ENUM_VALUE(NAME) temp_object=PyLong_FromLong(Py3hp_Core_StatementType_##NAME);if(temp_object==NULL){return NULL;}if(PyModule_AddObject(module,#NAME,temp_object)!=0){Py_DECREF(temp_object);return NULL;}Py_DECREF(temp_object)
+#define ADD_PARSER_ENUM_VALUE(NAME) if(PyModule_AddIntConstant(module,#NAME,Py3hp_Core_StatementType_##NAME)!=0){return NULL;}
 #else
-#define ADD_PARSER_ENUM_VALUE(NAME) temp_object=PyLong_FromLong(Py3hp_Core_StatementType_##NAME);if(temp_object==NULL){return;}if(PyModule_AddObject(module,#NAME,temp_object)!=0){Py_DECREF(temp_object);return;}Py_DECREF(temp_object)
+#define ADD_PARSER_ENUM_VALUE(NAME) if(PyModule_AddIntConstant(module,#NAME,Py3hp_Core_StatementType_##NAME)!=0){return;}
 #endif
     ADD_PARSER_ENUM_VALUE(RAW);
     ADD_PARSER_ENUM_VALUE(INLINE);

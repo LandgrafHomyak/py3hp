@@ -5,9 +5,9 @@ name: Python3 package test
 
 on:
   push:
-    branches: [ shit ]
+    branches: [ dev, master ]
   pull_request:
-    branches: [ shit ]
+    branches: [ dev, master ]
 
 jobs:
   tests:
