@@ -151,33 +151,158 @@ PY3HP_LOW_API Py3hp_Core_ParserMatch Py3hp_Core_Parser_Next(const char *string, 
     return Py3hp_Core_Parser_Next(string, len, state);
 }
 
-#if PY_VERSION_HEX >= 0x03000000
-#elif PY_VERSION_HEX >= 0x02000000
-# if PY_VERSION_HEX >= 0x02020000
-PY3HP_HIGH_API Py3hp_Core_ParserIterator_Object *Py3hp_Core_OldParser_Func(PyObject *module, PyObject *string)
-# elif PY_VERSION_HEX >= 0x02000000
-PY3HP_HIGH_API PyObject *Py3hp_Core_OldParser_Func(PyObject *module, PyObject *string)
-# endif
+PY3HP_LOW_API Py_ssize_t Py3hp_Core_AlignCode(char *dst, const char *src, const Py_ssize_t start, const Py_ssize_t len)
 {
-    PyObject *self;
-    Py3hp_Core_ParserIteratorState state;
-    Py3hp_Core_ParserMatch match;
-    Py_ssize_t len;
-# if PY_VERSION_HEX >= 0x02020000
-    Py3hp_Core_ParserMatch_Object *object;
-# else
-    PyObject *value;
-    PyObject *object;
-# endif
-    const char *src;
+    Py_ssize_t d_pos; /* position on destination string */
+    Py_ssize_t pos; /* position on source string */
+    Py_ssize_t i_pos; /* offset position in previous indent */
+    Py_ssize_t i_start; /* start position of previous offset (including common part) */
+    Py_ssize_t i_common; /* len of common indent */
+    Py_ssize_t i_len; /* len of previous indent (including common part) */
+    Py_ssize_t c_start; /* start position of current line */
+    Py_ssize_t c_line; /* number of current line, for errors formatting */
+    src += start;
 
-# if PY_VERSION_HEX >= 0x02020000
+    /* remove indent from first line (line after <? literal) */
+    d_pos = 0;
+    for (pos = 0; pos < len && src[pos] != '\n'; pos++)
+    {
+        if (d_pos != 0 || (src[pos] != ' ' && src[pos] != '\t'))
+        {
+            dst[d_pos++] = src[pos];
+            /* printf("!* %d '%c'\n", pos, src[pos]); */
+        }
+        /* else
+        {
+            printf("!_ %d\n", pos);
+        } */
+    }
+    dst[d_pos] = '\n';
+    pos++;
+
+    /* calc common indent that based on second line */
+    i_start = pos;
+    for (; pos < len && src[pos] != '\n'; pos++)
+    {
+        if (src[pos] != ' ' && src[pos] != '\t')
+        {
+            break;
+        }
+        /* printf("~ %d\n", pos); */
+    }
+    i_common = pos - i_start;
+    i_len = i_common;
+    pos = i_start - 1;
+
+    /* remove ident from other lines */
+    c_line = 2;
+    while (pos < len)
+    {
+        /* loop for first (and each other) line lefts pos on newline char (\n), at end of code its not needn't */
+        dst[d_pos++] = '\n';
+        pos++;
+        /* printf("| %d\n", pos); */
+
+        c_start = pos;
+        i_pos = 0;
+
+        /* check for common indent */
+        for (; pos < len && i_pos < i_common; pos++, i_pos++)
+        {
+            if (src[pos] != src[i_start + i_pos])
+            {
+                if (src[pos] == '\n')
+                {
+                    break;
+                }
+                if (src[pos] == ' ' || src[pos] == '\t')
+                {
+                    PyErr_Format(
+                            PyExc_ValueError,
+                            "inconsistent use of tabs and spaces in indentation (line %zd, pos %zd)",
+                            c_line,
+                            pos - c_start
+                    );
+                }
+                else
+                {
+                    PyErr_Format(
+                            PyExc_ValueError,
+                            "too small common indent (line %zd, pos %zd)",
+                            c_line,
+                            pos - c_start
+                    );
+                }
+                return -1;
+            }
+            /* printf("@~ %d\n", pos); */
+        }
+        if (src[pos] == '\n')
+        {
+            continue;
+        }
+
+        /* check for local indent */
+        for (; pos < len && i_pos < i_len; pos++, i_pos++)
+        {
+            if (src[pos] != src[i_start + i_pos])
+            {
+                if (src[pos] == '\n')
+                {
+                    break;
+                }
+                if (src[pos] == ' ' || src[pos] == '\t')
+                {
+                    PyErr_Format(
+                            PyExc_ValueError,
+                            "inconsistent use of tabs and spaces in indentation (line %zd, pos %zd)",
+                            c_line,
+                            pos - c_start
+                    );
+                    return 1;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            dst[d_pos++] = src[pos];
+            /* printf("@_ %d\n", pos); */
+        }
+        /* check for new indent level */
+        while (pos < len && (src[pos] == ' ' || src[pos] == '\t'))
+        {
+            /*  printf("@+ %d\n", pos); */
+            dst[d_pos++] = src[pos++];
+        }
+        if (src[pos] == '\n')
+        {
+            continue;
+        }
+        i_len = pos - c_start;
+        i_start = c_start;
+
+        /* copy statement */
+        for (; pos < len && src[pos] != '\n'; pos++)
+        {
+            /* printf("@* %d '%c'\n", pos, src[pos]); */
+            dst[d_pos++] = src[pos];
+        }
+
+        c_line++;
+    }
+
+    return d_pos;
+}
+
+PY3HP_HIGH_API PyObject *Py3hp_Core_AlignCode_Func(PyObject *module, PyObject *string)
+{
+    const char *src;
+    char *dst;
+    Py_ssize_t len;
+    PyObject *new;
+
     if (!(PyUnicode_Check(string)))
-# elif PY_VERSION_HEX >= 0x02010000
-    if(!(PyObject_IsInstance(string, &PyUnicode_Type)))
-# else
-    if(!(PyUnicode_Check(string))) /* not checks for subclasses */
-# endif
     {
         PyErr_Format(PyExc_TypeError, "source must be str, not %s", Py_TYPE(string)->tp_name);
     }
@@ -188,74 +313,37 @@ PY3HP_HIGH_API PyObject *Py3hp_Core_OldParser_Func(PyObject *module, PyObject *s
         return NULL;
     }
 
-    Py3hp_Core_Parser_Init(src, len, &state);
+    dst = PyMem_Malloc(len);
+    if (dst == NULL)
+    {
+        PyErr_NoMemory();
+        return NULL;
+    }
 
-    self = PyList_New(0);
-    if (self == NULL)
+    len = Py3hp_Core_AlignCode(dst, src, 0, len);
+    if (len == -1)
+    {
+        PyMem_Free(dst);
+        return NULL;
+    }
+
+    new = Py3hp_Core_DecodeString(dst, 0, len);
+    PyMem_Free(dst);
+    if (new == NULL)
     {
         return NULL;
     }
 
-    while ((match = Py3hp_Core_Parser_Next(src, len, &state)).type != Py3hp_Core_StatementType_NONE)
-    {
-# if PY_VERSION_HEX >= 0x02020000
-        object = (Py3hp_Core_ParserMatch_Object *) (Py3hp_Core_ParserMatch_Type.tp_alloc(&Py3hp_Core_ParserMatch_Type, 0));
-        if (object == NULL)
-        {
-            Py_DECREF(self);
-            PyErr_NoMemory();
-            return NULL;
-        }
-
-        object->meta = match;
-        object->value = Py3hp_Core_DecodeString(src, match.start, match.end - match.start);
-        if (object == NULL)
-        {
-            Py_DECREF(object);
-            Py_DECREF(self);
-            return NULL;
-        }
-# else
-        value = Py3hp_Core_DecodeString(src, match.start, match.end - match.start);
-        if (value == NULL)
-        {
-            Py_DECREF(self);
-            return NULL;
-        }
-        object = Py_BuildValue("iOii", match.type, value, match.start, match.end);
-        Py_DECREF(value);
-        if (object == NULL)
-        {
-            Py_DECREF(self);
-            return NULL;
-        }
-# endif
-        if (PyList_Append(self, object) != 0)
-        {
-            Py_DECREF(object);
-            Py_DECREF(self);
-            return NULL;
-        }
-    }
-    return self;
+    return new;
 }
-#else
-#endif
 
-#if PY_VERSION_HEX >= 0x02020000
 PY3HP_HIGH_API Py3hp_Core_ParserIterator_Object *Py3hp_Core_Parser_Func(PyObject *module, PyObject *string)
 {
     Py3hp_Core_ParserIterator_Object *self;
     const char *src;
     Py_ssize_t len;
 
-# if PY_VERSION_HEX >= 0x02020000
     if (!(PyUnicode_Check(string)))
-# elif PY_VERSION_HEX >= 0x02010000
-        if(!(PyObject_IsInstance(string, &PyUnicode_Type)))
-# else
-    if(!(PyUnicode_Check(string))) /* not checks for subclasses */
-# endif
     {
         PyErr_Format(PyExc_TypeError, "source must be str, not %s", Py_TYPE(string)->tp_name);
     }
@@ -336,18 +424,9 @@ PyTypeObject Py3hp_Core_ParserIterator_Type = {
         .tp_basicsize = sizeof(Py3hp_Core_ParserIterator_Object) - sizeof(char[1]),
         .tp_itemsize = sizeof(char),
         .tp_dealloc = (destructor) Py3hp_Core_ParserIterator_Dealloc,
-# if PY_VERSION_HEX >= 0x02020000
         .tp_iter = (getiterfunc) Py3hp_Core_ParserIterator_Iter,
         .tp_iternext = (iternextfunc) Py3hp_Core_ParserIterator_Next,
         .tp_getset = Py3hp_Core_ParserIterator_GetSet,
-# else
-# endif
-
-# if PY_VERSION_HEX >= 0x03000000
-# elif PY_VERSION_HEX >= 0x02020000
-        .tp_flags = Py_TPFLAGS_HAVE_ITER | Py_TPFLAGS_HAVE_CLASS,
-# else
-# endif
 };
 
 
@@ -397,18 +476,9 @@ PyTypeObject Py3hp_Core_ParserMatch_Type = {
         .tp_basicsize = sizeof(Py3hp_Core_ParserMatch_Object),
         .tp_dealloc = (destructor) Py3hp_Core_ParserMatch_Dealloc,
         .tp_repr = (reprfunc) Py3hp_Core_ParserMatch_Repr,
-# if PY_VERSION_HEX >= 0x02020000
         .tp_members = Py3hp_Core_ParserMatch_Members,
         .tp_getset = Py3hp_Core_ParserMatch_GetSet,
-# else
-# endif
         /* .tp_str = (reprfunc) Py3hp_Core_ParserMatch_Str, */
-
-# if PY_VERSION_HEX >= 0x03000000
-# elif PY_VERSION_HEX >= 0x02020000
-        .tp_flags = Py_TPFLAGS_HAVE_CLASS,
-# else
-# endif
 };
-#else
-#endif
+
+/* partially compatible code with python2x versions can be found on commit 4740e5a6e9d58405012dab74d54e82b76c7d2e1e */

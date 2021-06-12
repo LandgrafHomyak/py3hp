@@ -4,19 +4,8 @@
 #include "parser.h"
 
 static PyMethodDef module_functions[] = {
-#if PY_VERSION_HEX >= 0x03000000
         {"parse", (PyCFunction) Py3hp_Core_Parser_Func, METH_O, ""},
-#elif PY_VERSION_HEX >= 0x02020000
-        {"xparse", (PyCFunction) Py3hp_Core_Parser_Func, METH_O, ""},
-#else
-#endif
-#if PY_VERSION_HEX >= 0x03000000
-#elif PY_VERSION_HEX >= 0x02020000
-        {"parse", (PyCFunction) Py3hp_Core_OldParser_Func, METH_O, ""},
-#elif PY_VERSION_HEX >= 0x02000000
-        {"parse", (PyCFunction) Py3hp_Core_OldParser_Func, METH_VARARGS, ""},
-#else
-#endif
+        {"align", (PyCFunction) Py3hp_Core_AlignCode_Func, METH_O, ""},
         {NULL}
 };
 

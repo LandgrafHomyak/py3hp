@@ -26,18 +26,8 @@ PY3HP_LOW_API const char *Py3hp_Core_EncodeStringRO(PyObject *object, Py_ssize_t
     {
         return NULL;
     }
-# if PY_VERSION_HEX >= 0x03000000
     len = PyBytes_GET_SIZE(bytes);
     raw = PyBytes_AS_STRING(bytes);
-# else
-#  if PY_VERSION_HEX >= 0x02050000
-    len = PyString_GET_SIZE(bytes);
-#  else
-    len = (Py_ssize_t)(PyString_GET_SIZE(bytes));
-#  endif
-    raw = PyString_AS_STRING(bytes);
-# endif
-    Py_DECREF(bytes);
 #endif
     if (raw == NULL)
     {
@@ -87,11 +77,7 @@ PY3HP_LOW_API PyObject *Py3hp_Core_DecodeString(char *raw, Py_ssize_t start, Py_
         return NULL;
     }
 
-#if PY_VERSION_HEX >= 0x02050000
     object = PyUnicode_DecodeUTF8(raw + start, len, NULL);
-#else
-    object = PyUnicode_DecodeUTF8(raw + start, (int)len, NULL);
-#endif
     if (object == NULL)
     {
         return NULL;
