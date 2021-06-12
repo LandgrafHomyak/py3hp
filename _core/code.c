@@ -1,4 +1,7 @@
 #include <Python.h>
+
+#include "code.h"
+
 #include "code/class.h"
 #include "code/iterator.h"
 #include "code/commandtype.h"

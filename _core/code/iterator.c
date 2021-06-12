@@ -128,7 +128,7 @@ static PyObject *Py3hpCode_Iterator_Repr(Py3hpCode_Iterator_Object *self)
 
 static PyTypeObject Py3hpCode_Iterator_Type = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        .tp_name = "py3hp.core.py3hp_code_iterator",
+        .tp_name = "py3hp.core.code_iterator",
         .tp_doc = "",
         .tp_basicsize = sizeof(Py3hpCode_Iterator_Object),
         .tp_itemsize = 0,

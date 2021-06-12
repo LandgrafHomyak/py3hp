@@ -10,4 +10,4 @@ int Code_Init(PyObject *module);
 
 void Code_Free(void);
 
-#endif /* _PY3HP_CODE_H */
+#endif /* PY3HP_CODE_H */

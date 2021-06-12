@@ -5,13 +5,6 @@
 #include "parser.h"
 #include "iterator.h"
 
-static char anonymous_file[] = "<anonymous>";
-
-static PyObject *anonymous_file_o = NULL;
-
-static PyObject *compile_function = NULL;
-
-
 static void Py3hpCode_Dealloc(Py3hpCode_Object *self)
 {
     Py_ssize_t i;
@@ -49,7 +42,7 @@ static PySequenceMethods Py3hpCode_Sequence = {
 
 PyTypeObject Py3hpCodeBytes_Type = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        .tp_name = "py3hp.core.py3hp_code_bytes",
+        .tp_name = "py3hp.core.code_bytes",
         .tp_doc = "",
         .tp_basicsize = sizeof(Py3hpCode_Object) - sizeof(Py3hpCode_Command[1]),
         .tp_itemsize = sizeof(Py3hpCode_Command),
@@ -61,7 +54,7 @@ PyTypeObject Py3hpCodeBytes_Type = {
 
 PyTypeObject Py3hpCodeStr_Type = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        .tp_name = "py3hp.core.py3hp_code_str",
+        .tp_name = "py3hp.core.code_str",
         .tp_doc = "",
         .tp_base = &Py3hpCodeBytes_Type,
 };
@@ -79,8 +72,8 @@ int Code_Class_Init(PyObject *module)
         return -1;
     }
 
-    PyModule_AddObject(module, "py3hp_code_bytes", (PyObject *) &Py3hpCodeBytes_Type);
-    PyModule_AddObject(module, "py3hp_code_str", (PyObject *) &Py3hpCodeStr_Type);
+    PyModule_AddObject(module, "code_bytes", (PyObject *) &Py3hpCodeBytes_Type);
+    PyModule_AddObject(module, "code_str", (PyObject *) &Py3hpCodeStr_Type);
 
     return 0;
 }

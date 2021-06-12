@@ -43,7 +43,7 @@ static void Py3hpCode_CommandType_Dealloc(Py3hpCode_CommandType_Object *self)
 
 static PyTypeObject Py3hpCode_CommandType_Type = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        .tp_name = "py3hp.core.py3hp_code_commandtype",
+        .tp_name = "py3hp.core.code_commandtype",
         .tp_doc = "",
         .tp_basicsize = sizeof(Py3hpCode_CommandType_Object),
         .tp_itemsize = 0,
@@ -84,15 +84,15 @@ int Code_CommandType_Init(PyObject *module)
         return -1;
     }
 
-    if (PyModule_AddObject(module, "py3hp_code_command_raw", (PyObject *) &(Py3hpCode_CommandType_Instances[Py3hpCode_Command_RAW])) == -1)
+    if (PyModule_AddObject(module, "code_COMMAND_RAW", (PyObject *) &(Py3hpCode_CommandType_Instances[Py3hpCode_Command_RAW])) == -1)
     {
         return -1;
     }
-    if (PyModule_AddObject(module, "py3hp_code_command_eval", (PyObject *) &(Py3hpCode_CommandType_Instances[Py3hpCode_Command_EVAL])) == -1)
+    if (PyModule_AddObject(module, "code_COMMAND_EVAL", (PyObject *) &(Py3hpCode_CommandType_Instances[Py3hpCode_Command_EVAL])) == -1)
     {
         return -1;
     }
-    if (PyModule_AddObject(module, "py3hp_code_command_exec", (PyObject *) &(Py3hpCode_CommandType_Instances[Py3hpCode_Command_EXEC])) == -1)
+    if (PyModule_AddObject(module, "code_COMMAND_EXEC", (PyObject *) &(Py3hpCode_CommandType_Instances[Py3hpCode_Command_EXEC])) == -1)
     {
         return -1;
     }
