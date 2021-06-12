@@ -144,6 +144,7 @@ PY3HP_HIGH_API Py3hp_Core_PageCode_Object *Py3hp_Core_Compile_Func(PyObject *mod
             {
                 return NULL;
             }
+            dst[st_pos + st_len] = 0; /* for python compiler */
         }
 
         if (Py3hp_Core_Compile(&(statements[statements_pos++]), PY_MAJOR_VERSION, match.type, dst, st_pos, st_len, optimize) != 0)
@@ -151,6 +152,7 @@ PY3HP_HIGH_API Py3hp_Core_PageCode_Object *Py3hp_Core_Compile_Func(PyObject *mod
             return NULL;
         }
     }
+
     self = (Py3hp_Core_PageCode_Object *) (Py3hp_Core_PageCode_Type.tp_alloc(&Py3hp_Core_PageCode_Type, sizeof(char) * new_len + sizeof(Py3hp_Core_PageCode_Cell) * statements_pos));
     if (self == NULL)
     {
