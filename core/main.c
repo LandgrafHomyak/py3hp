@@ -11,8 +11,10 @@ static PyMethodDef module_functions[] = {
 #else
 #endif
 #if PY_VERSION_HEX >= 0x03000000
-#elif PY_VERSION_HEX >= 0x02000000
+#elif PY_VERSION_HEX >= 0x02020000
         {"parse", (PyCFunction) Py3hp_Core_OldParser_Func, METH_O, ""},
+#elif PY_VERSION_HEX >= 0x02000000
+        {"parse", (PyCFunction) Py3hp_Core_OldParser_Func, METH_VARARGS, ""},
 #else
 #endif
         {NULL}
