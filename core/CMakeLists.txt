@@ -20,6 +20,9 @@ add_executable(
 
         compiler.h
         compiler.c
+
+        streams.h
+        streams.c
 )
 # add_executable(test code/parser.c)
 if (0)

@@ -3,6 +3,7 @@
 #include "py3hp.h"
 #include "parser.h"
 #include "compiler.h"
+#include "streams.h"
 
 static PyMethodDef module_functions[] = {
         {"parse",   (PyCFunction) Py3hp_Core_Parser_Func,    METH_O, ""},
@@ -33,7 +34,13 @@ PyMODINIT_FUNC PyInit_core(void)
             PyType_Ready(&Py3hp_Core_ParserIterator_Type) ||
             PyType_Ready(&Py3hp_Core_ParserMatch_Type) ||
             PyType_Ready(&Py3hp_Core_PageCode_Type) ||
-            PyType_Ready(&Py3hp_Core_PageCodeIterator_Type)
+            PyType_Ready(&Py3hp_Core_PageCodeIterator_Type) ||
+            PyType_Ready(&Py3hp_Core_BaseStream_Type) ||
+            PyType_Ready(&Py3hp_Core_StdinPreset_Type) ||
+            PyType_Ready(&Py3hp_Core_Stdout_Type) ||
+            PyType_Ready(&Py3hp_Core_Stderr_Type) ||
+            PyType_Ready(&Py3hp_Core_StdoutPipe_Type) ||
+            PyType_Ready(&Py3hp_Core_StderrPipe_Type)
             )
     {
         return NULL;
@@ -61,6 +68,11 @@ PyMODINIT_FUNC PyInit_core(void)
     ADD_COMPILER_ENUM_VALUE(EXEC)
     ADD_COMPILER_ENUM_VALUE(EVAL)
 #undef ADD_COMPILER_ENUM_VALUE
+
+    if (PyModule_AddObject(module, "_base_stream", (PyObject *) (&Py3hp_Core_BaseStream_Type)) != 0)
+    {
+        return NULL;
+    }
 
     return module;
 }

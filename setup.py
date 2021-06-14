@@ -7,7 +7,8 @@ core_ext = Extension(
         "./core/main.c",
         "./core/encoding.c",
         "./core/parser.c",
-        "./core/compiler.c"
+        "./core/compiler.c",
+        "./core/streams.c"
     ],
 )
 
