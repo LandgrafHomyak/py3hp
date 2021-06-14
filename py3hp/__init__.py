@@ -1,1 +1,1 @@
-from .core import *
+from ._meta import *

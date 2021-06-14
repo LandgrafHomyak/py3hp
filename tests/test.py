@@ -1,3 +1,8 @@
+import sys
+
+import py3hp
+print("py3hp", py3hp.version, "on", sys.platform)
+
 import py3hp.core as core
 print("-" * 100)
 print(core.align("  sd;fsd\n jsndfsndf\n  fsdf\n jsd\n\n"))

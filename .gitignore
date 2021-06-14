@@ -3,3 +3,4 @@ venv*
 .jython_cache
 dist
 *.egg*
+cmake-*

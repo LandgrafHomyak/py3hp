@@ -5,9 +5,9 @@ name: Python2 package test
 
 on:
   push:
-    branches: [ dev, master ]
+    branches: [ "2-cpython-0.0" ]
   pull_request:
-    branches: [ dev, master ]
+    branches: [ "2-cpython-0.0" ]
 
 jobs:
   tests:
