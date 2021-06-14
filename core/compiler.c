@@ -266,8 +266,8 @@ static PyObject *Py3hp_Core_PageCodeIterator_Next(Py3hp_Core_PageCodeIterator_Ob
     }
     else
     {
-        Py_INCREF(statement);
         statement = data.value.code;
+        Py_INCREF(statement);
     }
 
     tuple = Py_BuildValue("iO", data.type, statement);
