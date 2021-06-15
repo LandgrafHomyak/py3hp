@@ -4,11 +4,14 @@
 #include "parser.h"
 #include "compiler.h"
 #include "streams.h"
+#include "executor.h"
 
 static PyMethodDef module_functions[] = {
-        {"parse",   (PyCFunction) Py3hp_Core_Parser_Func,    METH_O, ""},
-        {"align",   (PyCFunction) Py3hp_Core_AlignCode_Func, METH_O, ""},
+        {"parse",   (PyCFunction) Py3hp_Core_Parser_Func,    METH_O,               ""},
+        {"align",   (PyCFunction) Py3hp_Core_AlignCode_Func, METH_O,               ""},
         {"compile", (PyCFunction) Py3hp_Core_Compile_Func,   METH_VARARGS | METH_KEYWORDS, ""},
+        {"_exec",   (PyCFunction) Py3hp_Core_ExecEmbed_Func, METH_O,               ""},
+        {"exec",    (PyCFunction) Py3hp_Core_Exec_Func, METH_VARARGS | METH_KEYWORDS, ""},
         {NULL}
 };
 

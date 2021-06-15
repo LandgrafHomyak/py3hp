@@ -36,7 +36,8 @@ core_ext = Extension(
         "./core/encoding.c",
         "./core/parser.c",
         "./core/compiler.c",
-        "./core/streams.c"
+        "./core/streams.c",
+        "./core/executor.c"
     ],
 )
 

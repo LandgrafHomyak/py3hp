@@ -33,9 +33,9 @@ PY3HP_LOW_API int Py3hp_Core_CompileCell(Py3hp_Core_PageCode_Cell *dst, int py_v
             return 1;
         case Py3hp_Core_StatementType_INLINE3:
 #if PY_VERSION_HEX >= 0x03020000
-            dst->value.code = Py_CompileStringExFlags(source + start, "<py3hp page inline insertion>", Py_single_input, NULL, optimize);
+            dst->value.code = Py_CompileStringExFlags(source + start, "<py3hp page inline insertion>", Py_eval_input, NULL, optimize);
 #else
-            dst->value.code = Py_CompileString(source + start, "<py3hp page inline insertion>", Py_single_input);
+            dst->value.code = Py_CompileString(source + start, "<py3hp page inline insertion>", Py_eval_input);
 #endif
             if (dst->value.code == NULL)
             {

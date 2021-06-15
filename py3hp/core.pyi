@@ -1,4 +1,4 @@
-from typing import NoReturn, Tuple, Union, Literal
+from typing import NoReturn, Tuple, Union, Literal, Any
 
 
 class parser_iterator:
@@ -294,3 +294,9 @@ class stderr_pipe(_base_stream):
     def writable(self, /) -> Literal[False]: ...
 
     def read(self, n: int = ..., /) -> str: ...
+
+
+def _exec(source: Union[str, __page_code], /) -> NoReturn: ...
+
+
+def exec(source: __page_code, globals: dict, stdin: Any, stdout: Any, stderr: Any, /) -> NoReturn: ...

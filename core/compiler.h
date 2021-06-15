@@ -37,7 +37,6 @@ PY3HP_LOW_API void Py3hp_Core_ReleaseCompile(Py3hp_Core_PageCode_Cell *p_stateme
 
 typedef struct
 {
-    PyObject_VAR_HEAD
     PyObject *name;
     Py_ssize_t buffer_len;
     Py_ssize_t statements_count;
