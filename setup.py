@@ -52,7 +52,8 @@ args = dict(
     # entry_points={"console_scripts": {
     #     "py3hp": "py3hp.interpreter:main"
     # }}
-    package_data={"pyhp": []}
+    package_data={"pyhp": []},
+    version="0.0.0b0"
 )
 
 if sys.version_info >= (3, 5):
