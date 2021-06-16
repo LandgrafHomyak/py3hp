@@ -16,7 +16,7 @@
             (PyHP_RELEASE_LEVEL <<  4) | \
             (PyHP_RELEASE_SERIAL << 0))
 
-#define PyHP_VERSION "0.0.0b0"
+#define PyHP_VERSION "0.0.0b0+"
 
 
 #endif /* PyHP_CORE_H */
