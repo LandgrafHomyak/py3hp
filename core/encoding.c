@@ -1,9 +1,9 @@
 #include <Python.h>
 
-#include "py3hp.h"
+#include "pyhp.h"
 #include "encoding.h"
 
-PY3HP_LOW_API const char *Py3hp_Core_EncodeStringRO(PyObject *object, Py_ssize_t *p_len)
+PyHP_LOW_API const char *PyHP_Core_EncodeStringRO(PyObject *object, Py_ssize_t *p_len)
 {
     const char *raw;
     Py_ssize_t len;
@@ -42,13 +42,13 @@ PY3HP_LOW_API const char *Py3hp_Core_EncodeStringRO(PyObject *object, Py_ssize_t
     return raw;
 }
 
-PY3HP_LOW_API char *Py3hp_Core_EncodeString(PyObject *object, Py_ssize_t *p_len)
+PyHP_LOW_API char *PyHP_Core_EncodeString(PyObject *object, Py_ssize_t *p_len)
 {
     const char *raw;
     Py_ssize_t len;
     char *buffer;
 
-    raw = Py3hp_Core_EncodeStringRO(object, &len);
+    raw = PyHP_Core_EncodeStringRO(object, &len);
 
     buffer = PyMem_Malloc(len + 1);
     if (buffer == NULL)
@@ -67,7 +67,7 @@ PY3HP_LOW_API char *Py3hp_Core_EncodeString(PyObject *object, Py_ssize_t *p_len)
 }
 
 
-PY3HP_LOW_API PyObject *Py3hp_Core_DecodeString(const char *raw, Py_ssize_t start, Py_ssize_t len)
+PyHP_LOW_API PyObject *PyHP_Core_DecodeString(const char *raw, Py_ssize_t start, Py_ssize_t len)
 {
     PyObject *object;
 

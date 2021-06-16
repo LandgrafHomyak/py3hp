@@ -8,7 +8,7 @@ set(CMAKE_C_STANDARD 11)
 add_executable(
         core
 
-        py3hp.h
+        pyhp.h
 
         main.c
 

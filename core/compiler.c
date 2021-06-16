@@ -1,37 +1,37 @@
 #include <Python.h>
-#include "py3hp.h"
+#include "pyhp.h"
 
 #include "compiler.h"
 #include "encoding.h"
 #include "parser.h"
 
 
-PY3HP_LOW_API int Py3hp_Core_CompileCell(Py3hp_Core_PageCode_Cell *dst, int py_version, Py3hp_Core_StatementType type, const char *source, Py_ssize_t start, Py_ssize_t len, int optimize)
+PyHP_LOW_API int PyHP_Core_CompileCell(PyHP_Core_PageCode_Cell *dst, int py_version, PyHP_Core_StatementType type, const char *source, Py_ssize_t start, Py_ssize_t len, int optimize)
 {
     switch (type)
     {
-        case Py3hp_Core_StatementType_RAW:
-            dst->type = Py3hp_Core_PageCodeType_TEXT;
+        case PyHP_Core_StatementType_RAW:
+            dst->type = PyHP_Core_PageCodeType_TEXT;
             dst->value.raw.start = start;
             dst->value.raw.len = len;
             return 0;
-        case Py3hp_Core_StatementType_BLOCK:
+        case PyHP_Core_StatementType_BLOCK:
             if (py_version == 3)
             {
-                return Py3hp_Core_CompileCell(dst, py_version, Py3hp_Core_StatementType_BLOCK3, source, start, len, optimize);
+                return PyHP_Core_CompileCell(dst, py_version, PyHP_Core_StatementType_BLOCK3, source, start, len, optimize);
             }
-        case Py3hp_Core_StatementType_INLINE:
+        case PyHP_Core_StatementType_INLINE:
             if (py_version == 3)
             {
-                return Py3hp_Core_CompileCell(dst, py_version, Py3hp_Core_StatementType_INLINE3, source, start, len, optimize);
+                return PyHP_Core_CompileCell(dst, py_version, PyHP_Core_StatementType_INLINE3, source, start, len, optimize);
             }
-        case Py3hp_Core_StatementType_BLOCK2:
-        case Py3hp_Core_StatementType_BLOCK1:
-        case Py3hp_Core_StatementType_INLINE2:
-        case Py3hp_Core_StatementType_INLINE1:
+        case PyHP_Core_StatementType_BLOCK2:
+        case PyHP_Core_StatementType_BLOCK1:
+        case PyHP_Core_StatementType_INLINE2:
+        case PyHP_Core_StatementType_INLINE1:
             PyErr_Format(PyExc_NotImplementedError, "support of lower python versions not implemented yet");
             return 1;
-        case Py3hp_Core_StatementType_INLINE3:
+        case PyHP_Core_StatementType_INLINE3:
 #if PY_VERSION_HEX >= 0x03020000
             dst->value.code = Py_CompileStringExFlags(source + start, "<py3hp page inline insertion>", Py_eval_input, NULL, optimize);
 #else
@@ -41,9 +41,9 @@ PY3HP_LOW_API int Py3hp_Core_CompileCell(Py3hp_Core_PageCode_Cell *dst, int py_v
             {
                 return 1;
             }
-            dst->type = Py3hp_Core_PageCodeType_EVAL;
+            dst->type = PyHP_Core_PageCodeType_EVAL;
             return 0;
-        case Py3hp_Core_StatementType_BLOCK3:
+        case PyHP_Core_StatementType_BLOCK3:
 #if PY_VERSION_HEX >= 0x03020000
             dst->value.code = Py_CompileStringExFlags(source + start, "<py3hp page block insertion>", Py_file_input, NULL, optimize);
 #else
@@ -53,7 +53,7 @@ PY3HP_LOW_API int Py3hp_Core_CompileCell(Py3hp_Core_PageCode_Cell *dst, int py_v
             {
                 return 1;
             }
-            dst->type = Py3hp_Core_PageCodeType_EXEC;
+            dst->type = PyHP_Core_PageCodeType_EXEC;
             return 0;
         default:
             PyErr_BadInternalCall();
@@ -61,16 +61,16 @@ PY3HP_LOW_API int Py3hp_Core_CompileCell(Py3hp_Core_PageCode_Cell *dst, int py_v
     }
 }
 
-PY3HP_LOW_API int Py3hp_Core_Compile(const char *src, Py_ssize_t len, Py_ssize_t *p_slen, Py3hp_Core_PageCode_Cell **p_statements, Py_ssize_t *p_blen, char **p_buffer, int optimize)
+PyHP_LOW_API int PyHP_Core_Compile(const char *src, Py_ssize_t len, Py_ssize_t *p_slen, PyHP_Core_PageCode_Cell **p_statements, Py_ssize_t *p_blen, char **p_buffer, int optimize)
 {
-    Py3hp_Core_ParserIteratorState iterator;
-    Py3hp_Core_ParserMatch match;
+    PyHP_Core_ParserIteratorState iterator;
+    PyHP_Core_ParserMatch match;
     char *dst;
     Py_ssize_t new_len;
     Py_ssize_t pos;
     Py_ssize_t st_pos;
     Py_ssize_t st_len;
-    Py3hp_Core_PageCode_Cell *statements;
+    PyHP_Core_PageCode_Cell *statements;
     Py_ssize_t statements_len;
     Py_ssize_t statements_pos;
 
@@ -85,7 +85,7 @@ PY3HP_LOW_API int Py3hp_Core_Compile(const char *src, Py_ssize_t len, Py_ssize_t
 
     statements_len = 8;
     statements_pos = 0;
-    statements = PyMem_Malloc(sizeof(Py3hp_Core_PageCode_Cell) * statements_len);
+    statements = PyMem_Malloc(sizeof(PyHP_Core_PageCode_Cell) * statements_len);
     if (statements == NULL)
     {
         PyMem_Free(dst);
@@ -94,13 +94,13 @@ PY3HP_LOW_API int Py3hp_Core_Compile(const char *src, Py_ssize_t len, Py_ssize_t
     }
 
 
-    Py3hp_Core_Parser_Init(src, len, &iterator);
-    while ((match = Py3hp_Core_Parser_Next(src, len, &iterator)).type != Py3hp_Core_StatementType_NONE)
+    PyHP_Core_Parser_Init(src, len, &iterator);
+    while ((match = PyHP_Core_Parser_Next(src, len, &iterator)).type != PyHP_Core_StatementType_NONE)
     {
         if (statements_pos >= statements_len)
         {
             statements_len *= 2;
-            statements = PyMem_Realloc(statements, sizeof(Py3hp_Core_PageCode_Cell) * statements_len);
+            statements = PyMem_Realloc(statements, sizeof(PyHP_Core_PageCode_Cell) * statements_len);
             if (statements == NULL)
             {
                 PyMem_Free(dst);
@@ -109,7 +109,7 @@ PY3HP_LOW_API int Py3hp_Core_Compile(const char *src, Py_ssize_t len, Py_ssize_t
             }
         }
 
-        if (match.type == Py3hp_Core_StatementType_RAW)
+        if (match.type == PyHP_Core_StatementType_RAW)
         {
             st_pos = pos;
             st_len = match.end - match.start;
@@ -120,7 +120,7 @@ PY3HP_LOW_API int Py3hp_Core_Compile(const char *src, Py_ssize_t len, Py_ssize_t
         else
         {
             st_pos = pos;
-            st_len = Py3hp_Core_AlignCode(&(dst[pos]), src, match.start, match.end - match.start);
+            st_len = PyHP_Core_AlignCode(&(dst[pos]), src, match.start, match.end - match.start);
             if (st_len < 0)
             {
                 return 1;
@@ -128,7 +128,7 @@ PY3HP_LOW_API int Py3hp_Core_Compile(const char *src, Py_ssize_t len, Py_ssize_t
             dst[st_pos + st_len] = 0; /* for python compiler */
         }
 
-        if (Py3hp_Core_CompileCell(&(statements[statements_pos++]), PY_MAJOR_VERSION, match.type, dst, st_pos, st_len, optimize) != 0)
+        if (PyHP_Core_CompileCell(&(statements[statements_pos++]), PY_MAJOR_VERSION, match.type, dst, st_pos, st_len, optimize) != 0)
         {
             return 1;
         }
@@ -142,38 +142,38 @@ PY3HP_LOW_API int Py3hp_Core_Compile(const char *src, Py_ssize_t len, Py_ssize_t
     return 0;
 }
 
-PY3HP_LOW_API void Py3hp_Core_ReleaseCompile(Py3hp_Core_PageCode_Cell *p_statements, char *p_buffer)
+PyHP_LOW_API void PyHP_Core_ReleaseCompile(PyHP_Core_PageCode_Cell *p_statements, char *p_buffer)
 {
     PyMem_Free(p_statements);
     PyMem_Free(p_buffer);
 }
 
-PY3HP_LOW_API Py3hp_Core_PageCode *Py3hp_Core_AllocPageCode(Py_ssize_t slen, Py_ssize_t blen)
+PyHP_LOW_API PyHP_Core_PageCode *PyHP_Core_AllocPageCode(Py_ssize_t slen, Py_ssize_t blen)
 {
-    return PyMem_Malloc(Py3hp_Core_PageCode_BASESIZE + Py3hp_Core_PageCode_EXTRASIZE(slen, blen));
+    return PyMem_Malloc(PyHP_Core_PageCode_BASESIZE + PyHP_Core_PageCode_EXTRASIZE(slen, blen));
 }
 
-PY3HP_LOW_API void Py3hp_Core_FreePageCode(Py3hp_Core_PageCode *self)
+PyHP_LOW_API void PyHP_Core_FreePageCode(PyHP_Core_PageCode *self)
 {
     PyMem_Free(self);
 }
 
-PY3HP_LOW_API void Py3hp_Core_ReleasePageCode(Py3hp_Core_PageCode *self)
+PyHP_LOW_API void PyHP_Core_ReleasePageCode(PyHP_Core_PageCode *self)
 {
     Py_ssize_t i;
-    Py3hp_Core_PageCode_Cell *cell;
+    PyHP_Core_PageCode_Cell *cell;
 
     Py_DECREF(self->name);
 
-    i = Py3hp_Core_PageCode_SLEN(self);
-    cell = Py3hp_Core_PageCode_STATEMENTS(self);
+    i = PyHP_Core_PageCode_SLEN(self);
+    cell = PyHP_Core_PageCode_STATEMENTS(self);
     while (i-- > 0)
     {
         switch (cell->type)
         {
 
-            case Py3hp_Core_PageCodeType_EXEC:
-            case Py3hp_Core_PageCodeType_EVAL:
+            case PyHP_Core_PageCodeType_EXEC:
+            case PyHP_Core_PageCodeType_EVAL:
                 Py_DECREF(cell->value.code);
                 break;
         }
@@ -181,7 +181,7 @@ PY3HP_LOW_API void Py3hp_Core_ReleasePageCode(Py3hp_Core_PageCode *self)
     }
 }
 
-PY3HP_HIGH_API Py3hp_Core_PageCode_Object *Py3hp_Core_Compile_Func(PyObject *module, PyObject *args, PyObject *kwargs)
+PyHP_HIGH_API PyHP_Core_PageCode_Object *PyHP_Core_Compile_Func(PyObject *module, PyObject *args, PyObject *kwargs)
 {
     static char *kw_list[] = {"", "name", "optimize", NULL};
     PyObject *source;
@@ -190,10 +190,10 @@ PY3HP_HIGH_API Py3hp_Core_PageCode_Object *Py3hp_Core_Compile_Func(PyObject *mod
     const char *src;
     Py_ssize_t len;
     Py_ssize_t slen;
-    Py3hp_Core_PageCode_Cell *statements;
+    PyHP_Core_PageCode_Cell *statements;
     Py_ssize_t blen;
     char *buffer;
-    Py3hp_Core_PageCode_Object *self;
+    PyHP_Core_PageCode_Object *self;
 
     optimize = -1;
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "UU|$i", kw_list, &source, &name, &optimize))
@@ -201,31 +201,31 @@ PY3HP_HIGH_API Py3hp_Core_PageCode_Object *Py3hp_Core_Compile_Func(PyObject *mod
         return NULL;
     }
 
-    src = Py3hp_Core_EncodeStringRO(source, &len);
+    src = PyHP_Core_EncodeStringRO(source, &len);
     if (src == NULL)
     {
         return NULL;
     }
 
-    if (Py3hp_Core_Compile(src, len, &slen, &statements, &blen, &buffer, optimize) != 0)
+    if (PyHP_Core_Compile(src, len, &slen, &statements, &blen, &buffer, optimize) != 0)
     {
         return NULL;
     }
 
-    self = (Py3hp_Core_PageCode_Object *) (Py3hp_Core_PageCode_Type.tp_alloc(&Py3hp_Core_PageCode_Type, Py3hp_Core_PageCode_EXTRASIZE(slen, blen)));
+    self = (PyHP_Core_PageCode_Object *) (PyHP_Core_PageCode_Type.tp_alloc(&PyHP_Core_PageCode_Type, PyHP_Core_PageCode_EXTRASIZE(slen, blen)));
     if (self == NULL)
     {
-        Py3hp_Core_ReleaseCompile(statements, buffer);
+        PyHP_Core_ReleaseCompile(statements, buffer);
         PyErr_NoMemory();
         return NULL;
     }
 
-    Py3hp_Core_PageCode_SLEN(&(self->data)) = slen;
-    Py3hp_Core_PageCode_BLEN(&(self->data)) = blen;
+    PyHP_Core_PageCode_SLEN(&(self->data)) = slen;
+    PyHP_Core_PageCode_BLEN(&(self->data)) = blen;
 
-    memcpy(Py3hp_Core_PageCode_STATEMENTS(&(self->data)), statements, sizeof(Py3hp_Core_PageCode_Cell) * slen);
-    memcpy((char *) (Py3hp_Core_PageCode_BUFFER(&(self->data))), buffer, sizeof(char) * blen);
-    Py3hp_Core_ReleaseCompile(statements, buffer);
+    memcpy(PyHP_Core_PageCode_STATEMENTS(&(self->data)), statements, sizeof(PyHP_Core_PageCode_Cell) * slen);
+    memcpy((char *) (PyHP_Core_PageCode_BUFFER(&(self->data))), buffer, sizeof(char) * blen);
+    PyHP_Core_ReleaseCompile(statements, buffer);
 
     Py_INCREF(name);
     self->data.name = name;
@@ -233,13 +233,13 @@ PY3HP_HIGH_API Py3hp_Core_PageCode_Object *Py3hp_Core_Compile_Func(PyObject *mod
     return self;
 }
 
-static void Py3hp_Core_PageCode_Dealloc(Py3hp_Core_PageCode_Object *self)
+static void PyHP_Core_PageCode_Dealloc(PyHP_Core_PageCode_Object *self)
 {
-    Py3hp_Core_ReleasePageCode(&self->data);
+    PyHP_Core_ReleasePageCode(&self->data);
     Py_TYPE(self)->tp_free(self);
 }
 
-static PyObject *Py3hp_Core_PageCode_Repr(Py3hp_Core_PageCode_Object *self)
+static PyObject *PyHP_Core_PageCode_Repr(PyHP_Core_PageCode_Object *self)
 {
     return PyUnicode_FromFormat(
             "<%s object '%U'>",
@@ -248,11 +248,11 @@ static PyObject *Py3hp_Core_PageCode_Repr(Py3hp_Core_PageCode_Object *self)
     );
 }
 
-static Py3hp_Core_PageCodeIterator_Object *Py3hp_Core_PageCode_Iter(Py3hp_Core_PageCode_Object *self)
+static PyHP_Core_PageCodeIterator_Object *PyHP_Core_PageCode_Iter(PyHP_Core_PageCode_Object *self)
 {
-    Py3hp_Core_PageCodeIterator_Object *iterator;
+    PyHP_Core_PageCodeIterator_Object *iterator;
 
-    iterator = (Py3hp_Core_PageCodeIterator_Object *) (Py3hp_Core_PageCodeIterator_Type.tp_alloc(&Py3hp_Core_PageCodeIterator_Type, 0));
+    iterator = (PyHP_Core_PageCodeIterator_Object *) (PyHP_Core_PageCodeIterator_Type.tp_alloc(&PyHP_Core_PageCodeIterator_Type, 0));
     if (iterator == NULL)
     {
         PyErr_NoMemory();
@@ -266,24 +266,24 @@ static Py3hp_Core_PageCodeIterator_Object *Py3hp_Core_PageCode_Iter(Py3hp_Core_P
     return iterator;
 }
 
-PyTypeObject Py3hp_Core_PageCode_Type = {
+PyTypeObject PyHP_Core_PageCode_Type = {
         PyVarObject_HEAD_INIT(NULL, 0)
         .tp_name = "py3hp.core.page_code",
-        .tp_basicsize = Py3hp_Core_PageCode_BASESIZE,
+        .tp_basicsize = PyHP_Core_PageCode_BASESIZE,
         .tp_itemsize = 1,
-        .tp_dealloc = (destructor) Py3hp_Core_PageCode_Dealloc,
-        .tp_repr = (reprfunc) Py3hp_Core_PageCode_Repr,
-        .tp_iter = (getiterfunc) Py3hp_Core_PageCode_Iter,
+        .tp_dealloc = (destructor) PyHP_Core_PageCode_Dealloc,
+        .tp_repr = (reprfunc) PyHP_Core_PageCode_Repr,
+        .tp_iter = (getiterfunc) PyHP_Core_PageCode_Iter,
 };
 
 
-static void Py3hp_Core_PageCodeIterator_Dealloc(Py3hp_Core_PageCodeIterator_Object *self)
+static void PyHP_Core_PageCodeIterator_Dealloc(PyHP_Core_PageCodeIterator_Object *self)
 {
     Py_DECREF(self->data);
     Py_TYPE(self)->tp_free(self);
 }
 
-static PyObject *Py3hp_Core_PageCodeIterator_Repr(Py3hp_Core_PageCodeIterator_Object *self)
+static PyObject *PyHP_Core_PageCodeIterator_Repr(PyHP_Core_PageCodeIterator_Object *self)
 {
     return PyUnicode_FromFormat(
             "<%s object of %R>",
@@ -292,29 +292,29 @@ static PyObject *Py3hp_Core_PageCodeIterator_Repr(Py3hp_Core_PageCodeIterator_Ob
     );
 }
 
-static Py3hp_Core_PageCodeIterator_Object *Py3hp_Core_PageCodeIterator_Iter(Py3hp_Core_PageCodeIterator_Object *self)
+static PyHP_Core_PageCodeIterator_Object *PyHP_Core_PageCodeIterator_Iter(PyHP_Core_PageCodeIterator_Object *self)
 {
     Py_INCREF(self);
     return self;
 }
 
-static PyObject *Py3hp_Core_PageCodeIterator_Next(Py3hp_Core_PageCodeIterator_Object *self)
+static PyObject *PyHP_Core_PageCodeIterator_Next(PyHP_Core_PageCodeIterator_Object *self)
 {
     PyObject *tuple;
     PyObject *statement;
-    Py3hp_Core_PageCode_Cell data;
+    PyHP_Core_PageCode_Cell data;
 
-    if (self->pos >= Py3hp_Core_PageCode_SLEN(&(self->data->data)))
+    if (self->pos >= PyHP_Core_PageCode_SLEN(&(self->data->data)))
     {
         return NULL;
     }
 
 
-    data = Py3hp_Core_PageCode_STATEMENTS(&(self->data->data))[self->pos];
+    data = PyHP_Core_PageCode_STATEMENTS(&(self->data->data))[self->pos];
 
-    if (data.type == Py3hp_Core_PageCodeType_TEXT)
+    if (data.type == PyHP_Core_PageCodeType_TEXT)
     {
-        statement = Py3hp_Core_DecodeString(Py3hp_Core_PageCode_BUFFER(&(self->data->data)), data.value.raw.start, data.value.raw.len);
+        statement = PyHP_Core_DecodeString(PyHP_Core_PageCode_BUFFER(&(self->data->data)), data.value.raw.start, data.value.raw.len);
         if (statement == NULL)
         {
             return NULL;
@@ -336,12 +336,12 @@ static PyObject *Py3hp_Core_PageCodeIterator_Next(Py3hp_Core_PageCodeIterator_Ob
     return tuple;
 }
 
-PyTypeObject Py3hp_Core_PageCodeIterator_Type = {
+PyTypeObject PyHP_Core_PageCodeIterator_Type = {
         PyVarObject_HEAD_INIT(NULL, 0)
         .tp_name = "py3hp.core.page_code_iterator",
-        .tp_basicsize = sizeof(Py3hp_Core_PageCodeIterator_Object),
-        .tp_dealloc = (destructor) Py3hp_Core_PageCodeIterator_Dealloc,
-        .tp_repr = (reprfunc) Py3hp_Core_PageCodeIterator_Repr,
-        .tp_iter = (getiterfunc) Py3hp_Core_PageCodeIterator_Iter,
-        .tp_iternext = (iternextfunc) Py3hp_Core_PageCodeIterator_Next,
+        .tp_basicsize = sizeof(PyHP_Core_PageCodeIterator_Object),
+        .tp_dealloc = (destructor) PyHP_Core_PageCodeIterator_Dealloc,
+        .tp_repr = (reprfunc) PyHP_Core_PageCodeIterator_Repr,
+        .tp_iter = (getiterfunc) PyHP_Core_PageCodeIterator_Iter,
+        .tp_iternext = (iternextfunc) PyHP_Core_PageCodeIterator_Next,
 };

@@ -42,21 +42,21 @@ core_ext = Extension(
 )
 
 args = dict(
-    name="py3hp",
+    name="Python hypertext preprocessor",
     ext_modules=[
         meta_ext,
         core_ext,
     ],
-    ext_package="py3hp",
-    packages=["py3hp"],
+    ext_package="pyhp",
+    packages=["pyhp"],
     # entry_points={"console_scripts": {
     #     "py3hp": "py3hp.interpreter:main"
     # }}
-    package_data={"py3hp": []}
+    package_data={"pyhp": []}
 )
 
 if sys.version_info >= (3, 5):
-    args["package_data"]["py3hp"].extend(["py.typed", "__init__.pyi", "core.pyi", "_meta.pyi"])
+    args["package_data"]["pyhp"].extend(["py.typed", "__init__.pyi", "core.pyi", "_meta.pyi"])
 
 setup(
     **args

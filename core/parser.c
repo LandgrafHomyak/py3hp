@@ -2,7 +2,7 @@
 
 #include <Python.h>
 #include <structmember.h>
-#include "py3hp.h"
+#include "pyhp.h"
 
 #include "parser.h"
 #include "encoding.h"
@@ -14,26 +14,26 @@ static const char open_inline_2_tag[] = "<?2=";
 static const char close_tag[] = "?>";
 
 
-PY3HP_LOW_API void Py3hp_Core_Parser_Init(const char *string, Py_ssize_t len, Py3hp_Core_ParserIteratorState *state)
+PyHP_LOW_API void PyHP_Core_Parser_Init(const char *string, Py_ssize_t len, PyHP_Core_ParserIteratorState *state)
 {
     state->pos = 0;
     state->index = 0;
 }
 
-PY3HP_LOW_API Py3hp_Core_ParserMatch Py3hp_Core_Parser_Next(const char *string, Py_ssize_t len, Py3hp_Core_ParserIteratorState *state)
+PyHP_LOW_API PyHP_Core_ParserMatch PyHP_Core_Parser_Next(const char *string, Py_ssize_t len, PyHP_Core_ParserIteratorState *state)
 {
     Py_ssize_t i;
-    Py3hp_Core_ParserMatch match;
+    PyHP_Core_ParserMatch match;
     Py_ssize_t code_end;
     Py_ssize_t newline_pos;
 
     switch (state->index)
     {
         case 1:
-            match.type = Py3hp_Core_StatementType_RAW;
+            match.type = PyHP_Core_StatementType_RAW;
             match.start = state->raw_start;
             match.end = state->raw_end;
-            if (state->code_match.type == Py3hp_Core_StatementType_NONE)
+            if (state->code_match.type == PyHP_Core_StatementType_NONE)
             {
                 state->index = -1;
             }
@@ -46,16 +46,16 @@ PY3HP_LOW_API Py3hp_Core_ParserMatch Py3hp_Core_Parser_Next(const char *string, 
             state->index = 0;
             return state->code_match;
         case -1:
-            match.type = Py3hp_Core_StatementType_NONE;
+            match.type = PyHP_Core_StatementType_NONE;
             return match;
         case 0:
             break;
         default:
-            match.type = Py3hp_Core_StatementType_NONE;
+            match.type = PyHP_Core_StatementType_NONE;
             return match;
     }
 
-    state->code_match.type = Py3hp_Core_StatementType_NONE;
+    state->code_match.type = PyHP_Core_StatementType_NONE;
     newline_pos = state->pos - 1;
     for (i = state->pos; i < len; i++)
     {
@@ -80,13 +80,13 @@ PY3HP_LOW_API Py3hp_Core_ParserMatch Py3hp_Core_Parser_Next(const char *string, 
                                 switch (string[i + 2])
                                 {
                                     case '1':
-                                        state->code_match.type = Py3hp_Core_StatementType_INLINE1;
+                                        state->code_match.type = PyHP_Core_StatementType_INLINE1;
                                         break;
                                     case '2':
-                                        state->code_match.type = Py3hp_Core_StatementType_INLINE2;
+                                        state->code_match.type = PyHP_Core_StatementType_INLINE2;
                                         break;
                                     case '3':
-                                        state->code_match.type = Py3hp_Core_StatementType_INLINE3;
+                                        state->code_match.type = PyHP_Core_StatementType_INLINE3;
                                         break;
                                 }
                                 state->raw_start = state->pos;
@@ -107,13 +107,13 @@ PY3HP_LOW_API Py3hp_Core_ParserMatch Py3hp_Core_Parser_Next(const char *string, 
                                 switch (string[i + 8])
                                 {
                                     case '1':
-                                        state->code_match.type = Py3hp_Core_StatementType_BLOCK1;
+                                        state->code_match.type = PyHP_Core_StatementType_BLOCK1;
                                         break;
                                     case '2':
-                                        state->code_match.type = Py3hp_Core_StatementType_BLOCK2;
+                                        state->code_match.type = PyHP_Core_StatementType_BLOCK2;
                                         break;
                                     case '3':
-                                        state->code_match.type = Py3hp_Core_StatementType_BLOCK3;
+                                        state->code_match.type = PyHP_Core_StatementType_BLOCK3;
                                         break;
                                 }
                                 state->raw_start = state->pos;
@@ -136,9 +136,9 @@ PY3HP_LOW_API Py3hp_Core_ParserMatch Py3hp_Core_Parser_Next(const char *string, 
         state->index = 1;
         state->raw_start = state->pos;
         state->raw_end = len;
-        state->code_match.type = Py3hp_Core_StatementType_NONE;
+        state->code_match.type = PyHP_Core_StatementType_NONE;
     }
-    return Py3hp_Core_Parser_Next(string, len, state);
+    return PyHP_Core_Parser_Next(string, len, state);
 
     found:
     state->pos = code_end + 2;
@@ -154,10 +154,10 @@ PY3HP_LOW_API Py3hp_Core_ParserMatch Py3hp_Core_Parser_Next(const char *string, 
         state->index = 1;
     }
 
-    return Py3hp_Core_Parser_Next(string, len, state);
+    return PyHP_Core_Parser_Next(string, len, state);
 }
 
-PY3HP_LOW_API Py_ssize_t Py3hp_Core_AlignCode(char *dst, const char *src, const Py_ssize_t start, const Py_ssize_t len)
+PyHP_LOW_API Py_ssize_t PyHP_Core_AlignCode(char *dst, const char *src, const Py_ssize_t start, const Py_ssize_t len)
 {
     Py_ssize_t d_pos; /* position on destination string */
     Py_ssize_t pos; /* position on source string */
@@ -301,7 +301,7 @@ PY3HP_LOW_API Py_ssize_t Py3hp_Core_AlignCode(char *dst, const char *src, const 
     return d_pos;
 }
 
-PY3HP_HIGH_API PyObject *Py3hp_Core_AlignCode_Func(PyObject *module, PyObject *string)
+PyHP_HIGH_API PyObject *PyHP_Core_AlignCode_Func(PyObject *module, PyObject *string)
 {
     const char *src;
     char *dst;
@@ -313,7 +313,7 @@ PY3HP_HIGH_API PyObject *Py3hp_Core_AlignCode_Func(PyObject *module, PyObject *s
         PyErr_Format(PyExc_TypeError, "source must be str, not %s", Py_TYPE(string)->tp_name);
     }
 
-    src = Py3hp_Core_EncodeStringRO(string, &len);
+    src = PyHP_Core_EncodeStringRO(string, &len);
     if (src == NULL)
     {
         return NULL;
@@ -326,14 +326,14 @@ PY3HP_HIGH_API PyObject *Py3hp_Core_AlignCode_Func(PyObject *module, PyObject *s
         return NULL;
     }
 
-    len = Py3hp_Core_AlignCode(dst, src, 0, len);
+    len = PyHP_Core_AlignCode(dst, src, 0, len);
     if (len == -1)
     {
         PyMem_Free(dst);
         return NULL;
     }
 
-    new = Py3hp_Core_DecodeString(dst, 0, len);
+    new = PyHP_Core_DecodeString(dst, 0, len);
     PyMem_Free(dst);
     if (new == NULL)
     {
@@ -343,9 +343,9 @@ PY3HP_HIGH_API PyObject *Py3hp_Core_AlignCode_Func(PyObject *module, PyObject *s
     return new;
 }
 
-PY3HP_HIGH_API Py3hp_Core_ParserIterator_Object *Py3hp_Core_Parser_Func(PyObject *module, PyObject *string)
+PyHP_HIGH_API PyHP_Core_ParserIterator_Object *PyHP_Core_Parser_Func(PyObject *module, PyObject *string)
 {
-    Py3hp_Core_ParserIterator_Object *self;
+    PyHP_Core_ParserIterator_Object *self;
     const char *src;
     Py_ssize_t len;
 
@@ -354,13 +354,13 @@ PY3HP_HIGH_API Py3hp_Core_ParserIterator_Object *Py3hp_Core_Parser_Func(PyObject
         PyErr_Format(PyExc_TypeError, "source must be str, not %s", Py_TYPE(string)->tp_name);
     }
 
-    src = Py3hp_Core_EncodeStringRO(string, &len);
+    src = PyHP_Core_EncodeStringRO(string, &len);
     if (src == NULL)
     {
         return NULL;
     }
 
-    self = (Py3hp_Core_ParserIterator_Object *) (Py3hp_Core_ParserIterator_Type.tp_alloc(&Py3hp_Core_ParserIterator_Type, len));
+    self = (PyHP_Core_ParserIterator_Object *) (PyHP_Core_ParserIterator_Type.tp_alloc(&PyHP_Core_ParserIterator_Type, len));
     if (self == NULL)
     {
         PyErr_NoMemory();
@@ -368,30 +368,30 @@ PY3HP_HIGH_API Py3hp_Core_ParserIterator_Object *Py3hp_Core_Parser_Func(PyObject
     }
 
     memcpy(self->buffer, src, len);
-    Py3hp_Core_Parser_Init(self->buffer, len, &self->state);
+    PyHP_Core_Parser_Init(self->buffer, len, &self->state);
 
     return self;
 }
 
-PY3HP_HIGH_API static Py3hp_Core_ParserIterator_Object *Py3hp_Core_ParserIterator_Iter(Py3hp_Core_ParserIterator_Object *self)
+PyHP_HIGH_API static PyHP_Core_ParserIterator_Object *PyHP_Core_ParserIterator_Iter(PyHP_Core_ParserIterator_Object *self)
 {
     Py_INCREF(self);
     return self;
 }
 
-PY3HP_HIGH_API static Py3hp_Core_ParserMatch_Object *Py3hp_Core_ParserIterator_Next(Py3hp_Core_ParserIterator_Object *self)
+PyHP_HIGH_API static PyHP_Core_ParserMatch_Object *PyHP_Core_ParserIterator_Next(PyHP_Core_ParserIterator_Object *self)
 {
-    Py3hp_Core_ParserMatch match;
-    Py3hp_Core_ParserMatch_Object *object;
+    PyHP_Core_ParserMatch match;
+    PyHP_Core_ParserMatch_Object *object;
 
-    match = Py3hp_Core_Parser_Next(self->buffer, Py_SIZE(self), &(self->state));
+    match = PyHP_Core_Parser_Next(self->buffer, Py_SIZE(self), &(self->state));
 
-    if (match.type == Py3hp_Core_StatementType_NONE)
+    if (match.type == PyHP_Core_StatementType_NONE)
     {
         return NULL;
     }
 
-    object = (Py3hp_Core_ParserMatch_Object *) (Py3hp_Core_ParserMatch_Type.tp_alloc(&Py3hp_Core_ParserMatch_Type, 0));
+    object = (PyHP_Core_ParserMatch_Object *) (PyHP_Core_ParserMatch_Type.tp_alloc(&PyHP_Core_ParserMatch_Type, 0));
     if (object == NULL)
     {
         PyErr_NoMemory();
@@ -399,7 +399,7 @@ PY3HP_HIGH_API static Py3hp_Core_ParserMatch_Object *Py3hp_Core_ParserIterator_N
     }
 
     object->meta = match;
-    object->value = Py3hp_Core_DecodeString(self->buffer, match.start, match.end - match.start);
+    object->value = PyHP_Core_DecodeString(self->buffer, match.start, match.end - match.start);
     if (object->value == NULL)
     {
         Py_DECREF(object);
@@ -409,57 +409,57 @@ PY3HP_HIGH_API static Py3hp_Core_ParserMatch_Object *Py3hp_Core_ParserIterator_N
     return object;
 }
 
-PY3HP_HIGH_API static void Py3hp_Core_ParserIterator_Dealloc(Py3hp_Core_ParserIterator_Object *self)
+PyHP_HIGH_API static void PyHP_Core_ParserIterator_Dealloc(PyHP_Core_ParserIterator_Object *self)
 {
     Py_TYPE(self)->tp_free(self);
 }
 
-PY3HP_HIGH_API static PyObject *Py3hp_Core_ParserIterator_GetSource(Py3hp_Core_ParserIterator_Object *self)
+PyHP_HIGH_API static PyObject *PyHP_Core_ParserIterator_GetSource(PyHP_Core_ParserIterator_Object *self)
 {
-    return Py3hp_Core_DecodeString(self->buffer, 0, Py_SIZE(self));
+    return PyHP_Core_DecodeString(self->buffer, 0, Py_SIZE(self));
 }
 
-PyGetSetDef Py3hp_Core_ParserIterator_GetSet[] = {
-        {"_source", (getter) Py3hp_Core_ParserIterator_GetSource, NULL, ""},
+PyGetSetDef PyHP_Core_ParserIterator_GetSet[] = {
+        {"_source", (getter) PyHP_Core_ParserIterator_GetSource, NULL, ""},
         {NULL}
 };
 
-PyTypeObject Py3hp_Core_ParserIterator_Type = {
+PyTypeObject PyHP_Core_ParserIterator_Type = {
         PyVarObject_HEAD_INIT(NULL, 0)
         .tp_name = "py3hp.core.parser_iterator",
-        .tp_basicsize = sizeof(Py3hp_Core_ParserIterator_Object) - sizeof(char[1]),
+        .tp_basicsize = sizeof(PyHP_Core_ParserIterator_Object) - sizeof(char[1]),
         .tp_itemsize = sizeof(char),
-        .tp_dealloc = (destructor) Py3hp_Core_ParserIterator_Dealloc,
-        .tp_iter = (getiterfunc) Py3hp_Core_ParserIterator_Iter,
-        .tp_iternext = (iternextfunc) Py3hp_Core_ParserIterator_Next,
-        .tp_getset = Py3hp_Core_ParserIterator_GetSet,
+        .tp_dealloc = (destructor) PyHP_Core_ParserIterator_Dealloc,
+        .tp_iter = (getiterfunc) PyHP_Core_ParserIterator_Iter,
+        .tp_iternext = (iternextfunc) PyHP_Core_ParserIterator_Next,
+        .tp_getset = PyHP_Core_ParserIterator_GetSet,
 };
 
 
-PY3HP_HIGH_API static void Py3hp_Core_ParserMatch_Dealloc(Py3hp_Core_ParserMatch_Object *self)
+PyHP_HIGH_API static void PyHP_Core_ParserMatch_Dealloc(PyHP_Core_ParserMatch_Object *self)
 {
     Py_XDECREF(self->value);
     Py_TYPE(self)->tp_free(self);
 }
 
-static PyMemberDef Py3hp_Core_ParserMatch_Members[] = {
-        {"value", T_OBJECT,   offsetof(Py3hp_Core_ParserMatch_Object, value),      READONLY},
-        {"start", T_PYSSIZET, offsetof(Py3hp_Core_ParserMatch_Object, meta.start), READONLY},
-        {"end",   T_PYSSIZET, offsetof(Py3hp_Core_ParserMatch_Object, meta.end),   READONLY},
+static PyMemberDef PyHP_Core_ParserMatch_Members[] = {
+        {"value", T_OBJECT,   offsetof(PyHP_Core_ParserMatch_Object, value),      READONLY},
+        {"start", T_PYSSIZET, offsetof(PyHP_Core_ParserMatch_Object, meta.start), READONLY},
+        {"end",   T_PYSSIZET, offsetof(PyHP_Core_ParserMatch_Object, meta.end),   READONLY},
         {NULL}
 };
 
-static PyObject *Py3hp_Core_ParserMatch_GetType(Py3hp_Core_ParserMatch_Object *self)
+static PyObject *PyHP_Core_ParserMatch_GetType(PyHP_Core_ParserMatch_Object *self)
 {
     return PyLong_FromLong(self->meta.type);
 }
 
-static PyGetSetDef Py3hp_Core_ParserMatch_GetSet[] = {
-        {"type", (getter) Py3hp_Core_ParserMatch_GetType, NULL, ""},
+static PyGetSetDef PyHP_Core_ParserMatch_GetSet[] = {
+        {"type", (getter) PyHP_Core_ParserMatch_GetType, NULL, ""},
         {NULL}
 };
 
-PY3HP_HIGH_API static PyObject *Py3hp_Core_ParserMatch_Repr(Py3hp_Core_ParserMatch_Object *self)
+PyHP_HIGH_API static PyObject *PyHP_Core_ParserMatch_Repr(PyHP_Core_ParserMatch_Object *self)
 {
     return PyUnicode_FromFormat(
             "<%s object; span=(%zd, %zd) type=%d>",
@@ -470,21 +470,21 @@ PY3HP_HIGH_API static PyObject *Py3hp_Core_ParserMatch_Repr(Py3hp_Core_ParserMat
     );
 }
 
-PY3HP_HIGH_API static PyObject *Py3hp_Core_ParserMatch_Str(Py3hp_Core_ParserMatch_Object *self)
+PyHP_HIGH_API static PyObject *PyHP_Core_ParserMatch_Str(PyHP_Core_ParserMatch_Object *self)
 {
     Py_INCREF(self);
     return self->value;
 }
 
-PyTypeObject Py3hp_Core_ParserMatch_Type = {
+PyTypeObject PyHP_Core_ParserMatch_Type = {
         PyVarObject_HEAD_INIT(NULL, 0)
         .tp_name = "py3hp.core.parser_match",
-        .tp_basicsize = sizeof(Py3hp_Core_ParserMatch_Object),
-        .tp_dealloc = (destructor) Py3hp_Core_ParserMatch_Dealloc,
-        .tp_repr = (reprfunc) Py3hp_Core_ParserMatch_Repr,
-        .tp_members = Py3hp_Core_ParserMatch_Members,
-        .tp_getset = Py3hp_Core_ParserMatch_GetSet,
-        /* .tp_str = (reprfunc) Py3hp_Core_ParserMatch_Str, */
+        .tp_basicsize = sizeof(PyHP_Core_ParserMatch_Object),
+        .tp_dealloc = (destructor) PyHP_Core_ParserMatch_Dealloc,
+        .tp_repr = (reprfunc) PyHP_Core_ParserMatch_Repr,
+        .tp_members = PyHP_Core_ParserMatch_Members,
+        .tp_getset = PyHP_Core_ParserMatch_GetSet,
+        /* .tp_str = (reprfunc) PyHP_Core_ParserMatch_Str, */
 };
 
 /* partially compatible code with python2x versions can be found on commit 4740e5a6e9d58405012dab74d54e82b76c7d2e1e */

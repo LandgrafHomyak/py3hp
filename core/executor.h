@@ -1,36 +1,36 @@
 #include <Python.h>
-#include "py3hp.h"
+#include "pyhp.h"
 #include "compiler.h"
 
-#ifndef PY3HP_CORE_EXECUTOR_H
-# define PY3HP_CORE_EXECUTOR_H
+#ifndef PyHP_CORE_EXECUTOR_H
+# define PyHP_CORE_EXECUTOR_H
 
 typedef struct
 {
     PyThreadState *parent;
     PyThreadState *interpreter;
-    Py3hp_Core_PageCode *code;
+    PyHP_Core_PageCode *code;
     PyObject *o_stdin;
     PyObject *o_stdout;
     PyObject *o_stderr;
     int exit_code;
-} Py3hp_Core_Task;
+} PyHP_Core_Task;
 
 typedef struct
 {
     PyObject_HEAD
-    Py3hp_Core_Task data;
-} Py3hp_Core_Task_Object;
+    PyHP_Core_Task data;
+} PyHP_Core_Task_Object;
 
-extern PyTypeObject Py3hp_Core_Task_Type;
+extern PyTypeObject PyHP_Core_Task_Type;
 
-PY3HP_LOW_API int Py3hp_Core_ExecEmbed(Py3hp_Core_PageCode *code, PyObject *globals);
+PyHP_LOW_API int PyHP_Core_ExecEmbed(PyHP_Core_PageCode *code, PyObject *globals);
 
-PY3HP_LOW_API int Py3hp_Core_Exec(Py3hp_Core_Task *meta, PyObject *globals);
+PyHP_LOW_API int PyHP_Core_Exec(PyHP_Core_Task *meta, PyObject *globals);
 
-PY3HP_HIGH_API PyObject *Py3hp_Core_ExecEmbed_Func(PyObject *module, PyObject *raw_code);
+PyHP_HIGH_API PyObject *PyHP_Core_ExecEmbed_Func(PyObject *module, PyObject *raw_code);
 
-PY3HP_HIGH_API PyObject * Py3hp_Core_Exec_Func(PyObject *module, PyObject *args, PyObject *kwargs);
+PyHP_HIGH_API PyObject * PyHP_Core_Exec_Func(PyObject *module, PyObject *args, PyObject *kwargs);
 
 
-#endif /* PY3HP_CORE_EXECUTOR_H */
+#endif /* PyHP_CORE_EXECUTOR_H */

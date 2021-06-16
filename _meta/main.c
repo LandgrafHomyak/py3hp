@@ -1,5 +1,5 @@
 #include <Python.h>
-#include <py3hp.h>
+#include <pyhp.h>
 
 
 static PyModuleDef module_def = {
@@ -21,7 +21,7 @@ PyMODINIT_FUNC PyInit__meta(void)
         return NULL;
     }
 
-    object = PyUnicode_FromFormat("%s %s", Py3hp_VERSION, Py_GetCompiler());
+    object = PyUnicode_FromFormat("%s %s", PyHP_VERSION, Py_GetCompiler());
     if (object == NULL)
     {
         return NULL;
@@ -32,7 +32,7 @@ PyMODINIT_FUNC PyInit__meta(void)
         return NULL;
     }
 
-    object = PyLong_FromLong(Py3hp_VERSION_HEX);
+    object = PyLong_FromLong(PyHP_VERSION_HEX);
     if (object == NULL)
     {
         return NULL;
@@ -43,17 +43,17 @@ PyMODINIT_FUNC PyInit__meta(void)
         return NULL;
     }
 
-#if Py3hp_RELEASE_LEVEL == PY_RELEASE_LEVEL_ALPHA
+#if PyHP_RELEASE_LEVEL == PY_RELEASE_LEVEL_ALPHA
     rls = "alpha";
-#elif Py3hp_RELEASE_LEVEL == PY_RELEASE_LEVEL_BETA
+#elif PyHP_RELEASE_LEVEL == PY_RELEASE_LEVEL_BETA
     rls = "beta";
-#elif Py3hp_RELEASE_LEVEL == PY_RELEASE_LEVEL_GAMMA
+#elif PyHP_RELEASE_LEVEL == PY_RELEASE_LEVEL_GAMMA
     rls = "candidate";
-#elif Py3hp_RELEASE_LEVEL == PY_RELEASE_LEVEL_FINAL
+#elif PyHP_RELEASE_LEVEL == PY_RELEASE_LEVEL_FINAL
     rls = "final";
 #endif
 
-    object = Py_BuildValue("iiisi", Py3hp_MAJOR_VERSION, Py3hp_MINOR_VERSION, Py3hp_MICRO_VERSION, rls, Py3hp_RELEASE_SERIAL);
+    object = Py_BuildValue("iiisi", PyHP_MAJOR_VERSION, PyHP_MINOR_VERSION, PyHP_MICRO_VERSION, rls, PyHP_RELEASE_SERIAL);
     if (object == NULL)
     {
         return NULL;
