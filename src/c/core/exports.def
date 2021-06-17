@@ -1,0 +1,4 @@
+LIBRARY PyHP_Core
+EXPORTS
+    PyHP_Core_ParserIterator_Type
+    PyHP_Core_ParserMatch_Type

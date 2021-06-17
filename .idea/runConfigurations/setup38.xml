@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="setup38" type="PythonConfigurationType" factoryName="Python">
-    <module name="Python-Hypertext-Preprocessor" />
+    <module name="PyHP" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
     <envs>

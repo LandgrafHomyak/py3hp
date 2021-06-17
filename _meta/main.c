@@ -3,6 +3,7 @@
 
 
 static PyModuleDef module_def = {
+/**/
         PyModuleDef_HEAD_INIT,
         .m_name="py3hp._meta",
         .m_doc = "",

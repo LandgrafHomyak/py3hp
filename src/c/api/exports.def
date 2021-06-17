@@ -1,0 +1,19 @@
+LIBRARY PyHP_API
+EXPORTS
+    PyHP_API_EncodeStringRO
+    PyHP_API_EncodeString
+    PyHP_API_DecodeString
+
+    PyHP_API_Parser_Init
+    PyHP_API_Parser_Next
+    PyHP_API_AlignCode
+
+    PyHP_API_CompileCell
+    PyHP_API_Compile
+    PyHP_API_ReleaseCompile
+    PyHP_Core_AllocPageCode
+    PyHP_API_FreePageCode
+    PyHP_API_ReleasePageCode
+
+    PyHP_API_ExecEmbed
+    PyHP_API_Exec
