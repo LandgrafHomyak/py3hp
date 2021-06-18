@@ -134,10 +134,11 @@ class build_so(old_build_ext):
                 print("::endgroup")
 
         if GITHUB_ACTIONS:
-            print("\u001b[32m")
+            print("\u001b[32m", end="")
         print(" " + ("\u001b[4m" if GITHUB_ACTIONS else "") + so.name + ("\u001b[0m" if GITHUB_ACTIONS else ""), "built successful")
         if GITHUB_ACTIONS:
-            print("\u001b[0m")
+            print("\u001b[0m", end="")
+
 
 class SharedLib(Extension):
     pass
@@ -151,12 +152,32 @@ class gen_py_pkg(Command):
         pass
 
     def run(self):
-        shutil.rmtree("generated_package")
+        try:
+            shutil.rmtree("generated_package")
+            if GITHUB_ACTIONS:
+                print("\u001b[31m", end="")
+            print(" Cleaned generation directory")
+            if GITHUB_ACTIONS:
+                print("\u001b[0m", end="")
+        except:
+            pass
         os.mkdir("generated_package")
+        print(" Created generation directory")
         current = sys.version_info
+        print(" Current python version info:", ("\u001b[33m\u001b[4m" if GITHUB_ACTIONS else "") + str(current) + ("\u001b[0m" if GITHUB_ACTIONS else ""))
+
         for dir, lib in sorted((z for z in map(self.parse, os.listdir("./src/py")) if z[1] < current), key=lambda _z: _z[0]):
-            for file in os.listdir("./src/py/" + dir):
-                shutil.copyfile("./src/py/" + dir + "/" + file, "generated_package/" + file)
+            if GITHUB_ACTIONS:
+                print("::group::", end="")
+            print("  Processing version point", ("\u001b[33m\u001b[4m" if GITHUB_ACTIONS else "") + "v" + dir + ("\u001b[0m" if GITHUB_ACTIONS else ""))
+
+            try:
+                for file in os.listdir("./src/py/" + dir):
+                    print("  Copying file", ("\u001b[34m" if GITHUB_ACTIONS else "") + file + ("\u001b[0m" if GITHUB_ACTIONS else ""))
+                    shutil.copyfile("./src/py/" + dir + "/" + file, "generated_package/" + file)
+            finally:
+                if GITHUB_ACTIONS:
+                    print("::endgroup")
 
     @staticmethod
     def parse(s):
