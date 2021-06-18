@@ -188,7 +188,7 @@ def parse_def_file_symbols(path):
     with open(path, "rt") as deffileio:
         s = deffileio.read()
 
-    match = re.search(r"(?:^|\n)(?i:EXPORTS)\s*\n", s)
+    match = re.search(r"(?:^|\n)(?:EXPORTS)\s*\n", s)
     if match is None:
         return []
     start = match.end(0)
@@ -254,7 +254,7 @@ args = dict(
     # entry_points={"console_scripts": {
     #     "py3hp": "py3hp.interpreter:main"
     # }}
-    package_data={"pyhp": []},
+    package_data={"pyhp": os.listdir("generated_package")},
     version="0.0.0b0+",
     shared_libs=[
         api_so,
@@ -264,9 +264,6 @@ args = dict(
     distclass=Distribution,
     cmdclass={"build": build, "build_so": build_so, "gen_py_pkg": gen_py_pkg}
 )
-
-if sys.version_info >= (3, 5):
-    args["package_data"]["pyhp"].extend(["py.typed", "__init__.pyi", "core.pyi", "_meta.pyi", "libs/*"])
 
 setup(
     **args
