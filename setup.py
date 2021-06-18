@@ -78,7 +78,7 @@ class build_so(old_build_ext):
             macros.append((undef,))
 
         if GITHUB_ACTIONS:
-            print("::group::" + "  Compiling", so.name, "objects")
+            print("::group::Compiling", so.name, "objects")
         else:
             print("  Compiling objects")
         try:
@@ -96,7 +96,7 @@ class build_so(old_build_ext):
                 print("::endgroup::")
 
         if GITHUB_ACTIONS:
-            print("::group::" + "  Creating", so.name, "static lib")
+            print("::group::Creating", so.name, "static lib")
         else:
             print("  Creating static lib")
         try:
@@ -112,7 +112,7 @@ class build_so(old_build_ext):
                 print("::endgroup::")
 
         if GITHUB_ACTIONS:
-            print("::group::" + "  Linking", so.name, "shared lib")
+            print("::group::Linking", so.name, "shared lib")
         else:
             print("  Linking shared lib")
         try:
@@ -133,9 +133,20 @@ class build_so(old_build_ext):
             if GITHUB_ACTIONS:
                 print("::endgroup::")
 
+        fn = self.compiler.library_filename(so.name, "static")
+        if not fn.startswith(so.name):
+            os.rename("generated_package/" + fn, "generated_package/" + fn[fn.find(so.name):])
+            print("  Moving " + ("\u001b[35m\u001b[4m" if GITHUB_ACTIONS else "") + fn + ("\u001b[0m" if GITHUB_ACTIONS else "") + " -> " + ("\u001b[35m\u001b[4m" if GITHUB_ACTIONS else "") + fn[fn.find(so.name):] + ("\u001b[0m" if GITHUB_ACTIONS else ""))
+
+        fn = self.compiler.library_filename(so.name, "shared")
+        if not fn.startswith(so.name):
+            os.rename("generated_package/" + fn, "generated_package/" + fn[fn.find(so.name):])
+            print("  Moving " + ("\u001b[35m\u001b[4m" if GITHUB_ACTIONS else "") + fn + ("\u001b[0m" if GITHUB_ACTIONS else "") + " -> " + ("\u001b[35m\u001b[4m" if GITHUB_ACTIONS else "") + fn[fn.find(so.name):] + ("\u001b[0m" if GITHUB_ACTIONS else ""))
+
+
         if GITHUB_ACTIONS:
             print("\u001b[32m", end="")
-        print(" " + ("\u001b[4m" if GITHUB_ACTIONS else "") + so.name + ("\u001b[0m" if GITHUB_ACTIONS else ""), "built successful")
+        print(" " + ("\u001b[4m" if GITHUB_ACTIONS else "") + so.name + ("\u001b[0m\u001b[32m" if GITHUB_ACTIONS else ""), "built successful")
         if GITHUB_ACTIONS:
             print("\u001b[0m", end="")
 
@@ -168,8 +179,11 @@ class gen_py_pkg(Command):
 
         for dir, lib in sorted((z for z in map(self.parse, os.listdir("./src/py")) if z[1] < current), key=lambda _z: _z[0]):
             if GITHUB_ACTIONS:
-                print("::group::", end="")
-            print("  Processing version point", ("\u001b[33m\u001b[4m" if GITHUB_ACTIONS else "") + "v" + dir + ("\u001b[0m" if GITHUB_ACTIONS else ""))
+                print("::group::Processing version point", ("\u001b[33m\u001b[4m" if GITHUB_ACTIONS else "") + "v" + dir + ("\u001b[0m" if GITHUB_ACTIONS else ""))
+            else:
+                print("  Processing version point","v" + dir)
+
+
 
             try:
                 for file in os.listdir("./src/py/" + dir):
