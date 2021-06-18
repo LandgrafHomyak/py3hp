@@ -11,7 +11,7 @@ EXPORTS
     PyHP_API_CompileCell
     PyHP_API_Compile
     PyHP_API_ReleaseCompile
-    PyHP_Core_AllocPageCode
+    PyHP_API_AllocPageCode
     PyHP_API_FreePageCode
     PyHP_API_ReleasePageCode
 

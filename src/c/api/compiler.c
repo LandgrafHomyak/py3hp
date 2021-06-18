@@ -137,23 +137,23 @@ int PyHP_API_Compile(const char *src, Py_ssize_t len, Py_ssize_t *p_slen, PyHP_A
     return 0;
 }
 
-void PyHP_Core_ReleaseCompile(PyHP_API_PageCode_Cell *p_statements, char *p_buffer)
+void PyHP_API_ReleaseCompile(PyHP_API_PageCode_Cell *p_statements, char *p_buffer)
 {
     PyMem_Free(p_statements);
     PyMem_Free(p_buffer);
 }
 
-PyHP_API_PageCode *PyHP_Core_AllocPageCode(Py_ssize_t slen, Py_ssize_t blen)
+PyHP_API_PageCode *PyHP_API_AllocPageCode(Py_ssize_t slen, Py_ssize_t blen)
 {
     return PyMem_Malloc(PyHP_API_PageCode_BASESIZE + PyHP_API_PageCode_EXTRASIZE(slen, blen));
 }
 
-void PyHP_Core_FreePageCode(PyHP_API_PageCode *self)
+void PyHP_API_FreePageCode(PyHP_API_PageCode *self)
 {
     PyMem_Free(self);
 }
 
-void PyHP_Core_ReleasePageCode(PyHP_API_PageCode *self)
+void PyHP_API_ReleasePageCode(PyHP_API_PageCode *self)
 {
     Py_ssize_t i;
     PyHP_API_PageCode_Cell *cell;

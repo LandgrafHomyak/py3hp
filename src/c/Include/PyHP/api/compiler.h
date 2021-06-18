@@ -42,7 +42,7 @@ typedef struct
     const char buffer[1];
 } PyHP_API_PageCode;
 
-PyHP_API_PageCode *PyHP_Core_AllocPageCode(Py_ssize_t slen, Py_ssize_t blen);
+PyHP_API_PageCode *PyHP_API_AllocPageCode(Py_ssize_t slen, Py_ssize_t blen);
 
 void PyHP_API_FreePageCode(PyHP_API_PageCode *self);
 

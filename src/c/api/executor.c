@@ -1,7 +1,7 @@
 #include <Python.h>
 #include <PyHP/api.h>
 
-int PyHP_Core_ExecEmbed(PyHP_API_PageCode *code, PyObject *globals)
+int PyHP_API_ExecEmbed(PyHP_API_PageCode *code, PyObject *globals)
 {
     PyHP_API_Task meta = {NULL};
     Py_ssize_t i;
@@ -57,7 +57,7 @@ int PyHP_Core_ExecEmbed(PyHP_API_PageCode *code, PyObject *globals)
     return 0;
 }
 
-int PyHP_Core_Exec(PyHP_API_Task *meta, PyObject *globals)
+int PyHP_API_Exec(PyHP_API_Task *meta, PyObject *globals)
 {
     PyThreadState *interpreter;
     interpreter = Py_NewInterpreter();
@@ -99,7 +99,7 @@ int PyHP_Core_Exec(PyHP_API_Task *meta, PyObject *globals)
     }
 
 
-    if (PyHP_Core_ExecEmbed(meta->code, globals) != 0)
+    if (PyHP_API_ExecEmbed(meta->code, globals) != 0)
     {
         goto err;
     }
@@ -112,5 +112,4 @@ int PyHP_Core_Exec(PyHP_API_Task *meta, PyObject *globals)
     Py_EndInterpreter(interpreter);
     PyThreadState_Swap(meta->parent);
     return 1;
-
 }

@@ -1,7 +1,7 @@
 import sys
 
 import pyhp
-print("py3hp", pyhp.version, "on", sys.platform)
+# print("py3hp", pyhp.version, "on", sys.platform)
 
 import pyhp.core as core
 print("-" * 100)

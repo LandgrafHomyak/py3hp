@@ -25,7 +25,7 @@ static PyModuleDef module_def = {
         .m_free = (freefunc) module_free
 };
 
-PyMODINIT_FUNC PyInit_core(void)
+PyObject *PyHP_Core_CreateModule(void)
 {
     PyObject *module;
 
@@ -68,4 +68,9 @@ PyMODINIT_FUNC PyInit_core(void)
     }*/
 
     return module;
+}
+
+int main(void)
+{
+    return 0;
 }

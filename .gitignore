@@ -4,3 +4,4 @@ venv*
 dist
 *.egg*
 cmake-*
+generated_package
