@@ -93,7 +93,7 @@ class build_so(old_build_ext):
             )
         finally:
             if GITHUB_ACTIONS:
-                print("::endgroup")
+                print("::endgroup::")
 
         if GITHUB_ACTIONS:
             print("::group::" + "  Creating", so.name, "static lib")
@@ -109,7 +109,7 @@ class build_so(old_build_ext):
             )
         finally:
             if GITHUB_ACTIONS:
-                print("::endgroup")
+                print("::endgroup::")
 
         if GITHUB_ACTIONS:
             print("::group::" + "  Linking", so.name, "shared lib")
@@ -131,7 +131,7 @@ class build_so(old_build_ext):
             )
         finally:
             if GITHUB_ACTIONS:
-                print("::endgroup")
+                print("::endgroup::")
 
         if GITHUB_ACTIONS:
             print("\u001b[32m", end="")
@@ -177,7 +177,7 @@ class gen_py_pkg(Command):
                     shutil.copyfile("./src/py/" + dir + "/" + file, "generated_package/" + file)
             finally:
                 if GITHUB_ACTIONS:
-                    print("::endgroup")
+                    print("::endgroup::")
 
     @staticmethod
     def parse(s):
@@ -244,6 +244,7 @@ core_ext = Extension(
     libraries=["PyHP_Core"]
 )
 
+
 args = dict(
     name="pyhp",
     ext_modules=[
@@ -254,7 +255,7 @@ args = dict(
     # entry_points={"console_scripts": {
     #     "py3hp": "py3hp.interpreter:main"
     # }}
-    package_data={"pyhp": os.listdir("generated_package")},
+    package_data={"pyhp": ["*"]},
     version="0.0.0b0+",
     shared_libs=[
         api_so,
