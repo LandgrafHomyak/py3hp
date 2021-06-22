@@ -55,4 +55,9 @@ jobs:
       - name: Run tests
         run: |
           ./..bin/cpython/python -V
+          echo "::group::Checking PATH"
+          ./..bin/cpython/python -c "import pyhp;import os;print(*os.getenv('PATH').split(os.pathsep), sep='\n')"
+          echo "::endgroup::"
+          echo "::group::Tests output"
           ./..bin/cpython/python ./tests/test.py
+          echo "::endgroup::"
