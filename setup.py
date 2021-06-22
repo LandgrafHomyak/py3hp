@@ -8,8 +8,6 @@ from distutils.dist import Distribution as OldDistribution
 from distutils.command.build import build as old_build
 from distutils.command.build_ext import build_ext as old_build_ext
 from distutils.cmd import Command
-from distutils.sysconfig import customize_compiler
-from distutils.util import get_platform
 
 if "--github-actions" in sys.argv:
     sys.argv.pop(sys.argv.index("--github-actions"))
@@ -133,17 +131,6 @@ class build_so(old_build_ext):
             if GITHUB_ACTIONS:
                 print("::endgroup::")
 
-        fn = self.compiler.library_filename(so.name, "static")
-        if not fn.startswith(so.name):
-            os.rename("generated_package/" + fn, "generated_package/" + fn[fn.find(so.name):])
-            print("  Moving " + ("\u001b[35m\u001b[4m" if GITHUB_ACTIONS else "") + fn + ("\u001b[0m" if GITHUB_ACTIONS else "") + " -> " + ("\u001b[35m\u001b[4m" if GITHUB_ACTIONS else "") + fn[fn.find(so.name):] + ("\u001b[0m" if GITHUB_ACTIONS else ""))
-
-        fn = self.compiler.library_filename(so.name, "shared")
-        if not fn.startswith(so.name):
-            os.rename("generated_package/" + fn, "generated_package/" + fn[fn.find(so.name):])
-            print("  Moving " + ("\u001b[35m\u001b[4m" if GITHUB_ACTIONS else "") + fn + ("\u001b[0m" if GITHUB_ACTIONS else "") + " -> " + ("\u001b[35m\u001b[4m" if GITHUB_ACTIONS else "") + fn[fn.find(so.name):] + ("\u001b[0m" if GITHUB_ACTIONS else ""))
-
-
         if GITHUB_ACTIONS:
             print("\u001b[32m", end="")
         print(" " + ("\u001b[4m" if GITHUB_ACTIONS else "") + so.name + ("\u001b[0m\u001b[32m" if GITHUB_ACTIONS else ""), "built successful")
@@ -255,7 +242,7 @@ core_ext = Extension(
     ],
     include_dirs=["./src/c/Include"],
     library_dirs=["./generated_package"],
-    libraries=["PyHP_Core"]
+    libraries=["PyHP_Core", "PyHP_API"]
 )
 
 
@@ -266,7 +253,8 @@ args = dict(
     ],
     ext_package="pyhp",
     packages=["pyhp"],
-    # entry_points={"console_scripts": {
+    # entry_points={
+    # "console_scripts": {
     #     "py3hp": "py3hp.interpreter:main"
     # }}
     package_data={"pyhp": ["*"]},
