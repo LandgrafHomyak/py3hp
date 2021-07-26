@@ -2,7 +2,7 @@ name: Python wheels
 
 on:
   push:
-    branches: [ master, pure-python ]
+    branches: [ master ]
 
 jobs:
   build:

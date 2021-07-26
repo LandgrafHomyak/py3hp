@@ -15,8 +15,10 @@ python_add_library(
         SHARED
 
         src/pyhp.def
+        src/init.c
         src/parser.c
         src/_parser.cpp
+#        src/compiler.c
 )
 set_target_properties(PyHP_api PROPERTIES OUTPUT_NAME pyhp)
 

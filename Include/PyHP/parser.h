@@ -1,7 +1,7 @@
 #include <Python.h>
 
-#ifndef PYHP_PARSER_H
-#define PYHP_PARSER_H
+#ifndef PyHP_PARSER_H
+#define PyHP_PARSER_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -76,4 +76,4 @@ extern PyTypeObject PyHP_ParserMatch_Type;
 #ifdef __cplusplus
 }
 #endif
-#endif /* PYHP_PARSER_H */
+#endif /* PyHP_PARSER_H */

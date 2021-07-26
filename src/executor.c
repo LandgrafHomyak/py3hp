@@ -1,3 +1,5 @@
+#include <windows.h>
+
 #include <Python.h>
 #include <PyHP.h>
 
