@@ -12,6 +12,7 @@ def exec_embed(code, /, fout):
         raise TypeError("Can execute only raw 'str' or precompiled 'pyhp.compiler.page_code' page")
 
     old_stdout = sys.stdout
+    sys.stdout = fout
     try:
         globals = locals = dict()
         for cell in code:
@@ -20,7 +21,7 @@ def exec_embed(code, /, fout):
             elif cell.type == EXEC:
                 builtins.exec(cell.value, globals, locals)
             elif cell.type == EVAL:
-                fout.write(str(builtins.eval(cell.value)))
+                fout.write(str(builtins.eval(cell.value, globals, locals)))
     finally:
         sys.stdout = old_stdout
 

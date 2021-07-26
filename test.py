@@ -1,3 +1,5 @@
-from pyhp.compiler import compile
+from pyhp import main
 
-print(compile("slkfksldmfskf<?=sdfs?>dfdfdf"))
+import sys
+sys.argv.append("test.txt")
+main()

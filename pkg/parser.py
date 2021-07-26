@@ -4,7 +4,7 @@ RAW = 1
 INLINE = 2
 BLOCK = 3
 
-pyhp_pattern = re.compile(r"(?:<\?=([^\n]+?)\?>|<\?python=([\s\S]+?)\?>)")
+pyhp_pattern = re.compile(r"(?:<\?=([^\n]+?)|<\?python([ \n\t][\s\S]+?))\?>")
 
 
 class parser_match:
@@ -48,28 +48,30 @@ class parser_iterator:
             if search_result.group(1) is not None:
                 self.__next = parser_match(value=self._source[search_result.start(1):search_result.end(1)], type=INLINE, start=search_result.start(1), end=search_result.end(1))
             else:
-                self.__next = parser_match(value=self._source[search_result.start(2):search_result.end(2)], type=INLINE, start=search_result.start(2), end=search_result.end(2))
+                self.__next = parser_match(value=self._source[search_result.start(2):search_result.end(2)], type=BLOCK, start=search_result.start(2), end=search_result.end(2))
             return match
+
 
 def parse(source: str, /):
     return parser_iterator(source)
 
 
-indent_pattern = re.compile("\n([ \t]*)([^ \t]+)(?=\n|$)")
+indent_pattern = re.compile("\n([ \t]*)([^\n]+)(?=\n|$)")
 
 
 def align_code(source, /, start=None, end=None):
-    source = source[start:end]
+    source = source[start:end] + "\n"
     first_line = source[:source.find("\n")].lstrip()
     lines = indent_pattern.findall(source)
     if lines:
         indent = lines[0][0]
+        base_indent = len(indent)
         for i, v in enumerate(lines):
             if v[0].startswith(indent) or indent.startswith(v[0]):
                 indent = v[0]
-                lines[i] = v[1]
+                lines[i] = v[0][base_indent:] + v[1]
             else:
                 raise IndentationError
-        return first_line + "\n".join(lines)
+        return first_line + "\n" + "\n".join(lines)
     else:
         return first_line

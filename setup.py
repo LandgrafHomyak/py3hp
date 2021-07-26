@@ -18,5 +18,10 @@ setup(
         "Topic :: Text Processing :: Markup :: HTML",
         "Typing :: Typed"
     ],
-    version="0.0.0rc0"
+    version="0.0.0rc0",
+    entry_points={
+        "console_scripts":[
+            "pyhp = pyhp:main"
+        ]
+    }
 )
