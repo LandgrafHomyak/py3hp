@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.19)
-project(PyHP C)
+project(PyHP C CXX)
 
 set(CMAKE_C_STANDARD 90)
+set(CMAKE_CXX_STANDARD 98)
 
 find_package(Python COMPONENTS Development)
 
@@ -9,23 +10,25 @@ if (NOT SKBUILD)
     set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/venv/Lib/site-packages/skbuild/resources/cmake/)
 endif ()
 
-
 python_add_library(
-        libPyHP
+        PyHP_api
         SHARED
 
+        src/pyhp.def
         src/parser.c
+        src/_parser.cpp
 )
-set_target_properties(libPyHP PROPERTIES OUTPUT_NAME pyhp)
+set_target_properties(PyHP_api PROPERTIES OUTPUT_NAME pyhp)
+
 target_include_directories(
-        libPyHP
+        PyHP_api
 
         PUBLIC
         Include
 )
 
 install(
-        TARGETS libPyHP DESTINATION pyhp
+        TARGETS PyHP_api DESTINATION pyhp
 )
 
 python_add_library(
@@ -34,8 +37,8 @@ python_add_library(
 
         src/modules/parser.c
 )
-add_dependencies(python_pyhp_parser libPyHP)
-target_link_libraries(python_pyhp_parser PRIVATE libPyHP)
+add_dependencies(python_pyhp_parser PyHP_api)
+target_link_libraries(python_pyhp_parser PRIVATE PyHP_api)
 set_target_properties(python_pyhp_parser PROPERTIES OUTPUT_NAME parser)
 
 

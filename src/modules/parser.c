@@ -4,7 +4,7 @@
 
 static PyMethodDef module_methods[] = {
         {"align_code", (PyCFunction) PyHP_AlignCode_Func, METH_VARARGS | METH_KEYWORDS},
-        { "parse", (PyCFunction) PyHP_Parser_Func, METH_O },
+        {"parse",      (PyCFunction) PyHP_Parser_Func,    METH_O},
         {NULL}
 };
 
@@ -15,7 +15,8 @@ static PyModuleDef module_def = {
 
 PyMODINIT_FUNC PyInit_parser(void)
 {
-    PyObject * module;
+    PyObject *module;
+
     if (PyType_Ready(&PyHP_ParserIterator_Type))
     {
         return NULL;

@@ -1,4 +1,4 @@
-build
+*build*
 venv*
 .jython_cache
 dist

@@ -1,0 +1,10 @@
+LIBRARY PyHP
+EXPORTS
+    PyHP_Parser_Init                @8
+    PyHP_Parser_Next_String         @1
+    PyHP_Parser_Next_Object         @2
+    PyHP_AlignCode_Object           @3
+    PyHP_AlignCode_Func             @4
+    PyHP_Parser_Func                @5
+    PyHP_ParserIterator_Type        @6
+    PyHP_ParserMatch_Type           @7

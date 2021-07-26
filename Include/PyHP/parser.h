@@ -1,6 +1,11 @@
+#include <Python.h>
+
 #ifndef PYHP_PARSER_H
 #define PYHP_PARSER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef enum
 {
@@ -35,18 +40,17 @@ typedef struct
 
 void PyHP_Parser_Init(PyHP_ParserIteratorState *state);
 
-PyHP_ParserMatch PyHP_Parser_Next(PyHP_ParserIteratorState *state, const void *data, Py_ssize_t len, int kind);
+PyHP_ParserMatch PyHP_Parser_Next_String(PyHP_ParserIteratorState *state, const char *string, Py_ssize_t len);
 
-#define PyHP_Parser_Next_Ascii(STATE, POINTER, LEN) (PyHP_Parser_Next((STATE), LEN, PyUnicode_1BYTE_KIND, (POINTER)))
-#define PyHP_Parser_Next_Object(STATE, OBJECT) (PyHP_Parser_Next((STATE), PyUnicode_DATA(OBJECT), PyUnicode_GET_LENGTH(OBJECT), PyUnicode_KIND(OBJECT)))
+PyHP_ParserMatch PyHP_Parser_Next_Object(PyHP_ParserIteratorState *state, PyObject *string);
 
-
-Py_ssize_t PyHP_AlignCodeS(void *dst, const void *src, Py_ssize_t start, Py_ssize_t len, int kind);
 
 #define PyHP_AlignCodeS_Ascii(DST, SRC, START, LEN) (PyHP_AlignCodeS((DST), (SRC), (START), (LEN), PyUnicode_1BYTE_KIND))
 #define PyHP_AlignCodeS_Object(DST, SRC, START) (PyHP_AlignCodeS(PyUnicode_DATA(DST), PyUnicode_DATA(SRC), (START), PyUnicode_GET_LENGTH(SRC), PyUnicode_KIND(SRC)))
 
 PyObject *PyHP_AlignCode(PyObject *string, Py_ssize_t start, Py_ssize_t len);
+
+PyObject *PyHP_AlignCode_Object(PyObject *string, Py_ssize_t start, Py_ssize_t len);
 
 PyObject *PyHP_AlignCode_Func(PyObject *module, PyObject *args, PyObject *kwargs);
 
@@ -69,5 +73,7 @@ PyHP_ParserIterator_Object *PyHP_Parser_Func(PyObject *module, PyObject *string)
 extern PyTypeObject PyHP_ParserIterator_Type;
 
 extern PyTypeObject PyHP_ParserMatch_Type;
-
+#ifdef __cplusplus
+}
+#endif
 #endif /* PYHP_PARSER_H */
