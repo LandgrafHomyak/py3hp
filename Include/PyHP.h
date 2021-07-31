@@ -168,8 +168,12 @@ PyObject *PyHP_Exec_Func(PyObject *module, PyObject *args, PyObject *kwargs);
 
 */
 
+#include "PyHP/iterator_meta.h"
+/*
+#include "PyHP/statement_type.h"
 #include "PyHP/parser.h"
 #include "PyHP/compiler.h"
+*/
 
 int PyHP_Init(void);
 

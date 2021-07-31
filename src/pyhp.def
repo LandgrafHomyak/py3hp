@@ -1,12 +1,6 @@
 LIBRARY PyHP
 EXPORTS
-    PyHP_Parser_Init
-    PyHP_Parser_Next_String
-    PyHP_Parser_Next_Object
-    PyHP_AlignCode_Object
-    PyHP_AlignCode_Func
-    PyHP_Parser_Func
-    PyHP_ParserIterator_Type
-    PyHP_ParserMatch_Type
+
     PyHP_Init
-    PyHPInit_parser
+
+        PyHPInit_parser
