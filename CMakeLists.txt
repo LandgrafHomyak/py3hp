@@ -18,8 +18,9 @@ python_add_library(
         src/init.c
 
         src/iterator_meta.c
-#
-#        src/statement_type.c
+
+        src/statement_type.c
+        src/parser_match.c
 #        src/parser.c
 #        src/_parser.cpp
 #        src/compiler.c
@@ -52,6 +53,8 @@ python_add_library(
         MODULE
 
         src/modules/types.c
+
+
 )
 add_dependencies(python_pyhp_types PyHP_api)
 target_link_libraries(python_pyhp_types PRIVATE PyHP_api)

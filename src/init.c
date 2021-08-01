@@ -9,11 +9,15 @@ int PyHP_Init(void)
     {
         return -1;
     }
-    /*if (PyType_Ready(&PyHP_StatementType_Type))
+    if (PyType_Ready(&PyHP_StatementType_Type))
     {
         return -1;
     }
-    if (PyType_Ready(&PyHP_ParserIterator_Type))
+    if (PyType_Ready(&PyHP_ParserMatch_Type))
+    {
+        return -1;
+    }
+    /*if (PyType_Ready(&PyHP_ParserIterator_Type))
     {
         return -1;
     }
@@ -64,12 +68,12 @@ PyMODINIT_FUNC PyHPInit_parser(void)
     /*
     PyModule_AddObject(module, "parser_iterator", (PyObject *) &PyHP_ParserIterator_Type);
     PyModule_AddObject(module, "parser_match", (PyObject *) &PyHP_ParserMatch_Type);
-
+    */
     PyModule_AddObject(module, "NONE", (PyObject *) PyHP_StatementTypeObject_NONE);
     PyModule_AddObject(module, "RAW", (PyObject *) PyHP_StatementTypeObject_RAW);
     PyModule_AddObject(module, "INLINE", (PyObject *) PyHP_StatementTypeObject_INLINE);
     PyModule_AddObject(module, "BLOCK", (PyObject *) PyHP_StatementTypeObject_BLOCK);
-    */
+
 
     return module;
 }

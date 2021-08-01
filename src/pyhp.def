@@ -3,4 +3,12 @@ EXPORTS
 
     PyHP_Init
 
+        PyHPInit_types
+            PyHP_IteratorMeta_Type
+
+
         PyHPInit_parser
+            PyHP_StatementType_ToObject
+
+            PyHP_ParserMatch_Type
+            PyHP_ParserMatch_Converter
