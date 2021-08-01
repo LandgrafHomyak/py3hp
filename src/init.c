@@ -1,6 +1,9 @@
 #include <Python.h>
+
 #include <PyHP.h>
 #include <PyHP/modules.h>
+
+#include "_parser.h"
 
 int PyHP_Init(void)
 {
@@ -14,6 +17,10 @@ int PyHP_Init(void)
         return -1;
     }
     if (PyType_Ready(&PyHP_ParserMatch_Type))
+    {
+        return -1;
+    }
+    if (PyType_Ready(&(PyHP_ParserIterator_Type.tp)))
     {
         return -1;
     }
@@ -42,8 +49,8 @@ int PyHP_Init(void)
 static PyMethodDef PyHPInit_parser_methods[] = {
         /*
         {"align_code", (PyCFunction) PyHP_AlignCode_Func, METH_VARARGS | METH_KEYWORDS},
-        {"parse",      (PyCFunction) PyHP_Parser_Func,    METH_O},
         */
+        {"parse",      (PyCFunction) PyHP_Parser_Func,    METH_VARARGS},
         {NULL}
 };
 static PyModuleDef PyHPInit_parser_def = {
@@ -65,10 +72,10 @@ PyMODINIT_FUNC PyHPInit_parser(void)
     {
         return NULL;
     }
-    /*
+
     PyModule_AddObject(module, "parser_iterator", (PyObject *) &PyHP_ParserIterator_Type);
     PyModule_AddObject(module, "parser_match", (PyObject *) &PyHP_ParserMatch_Type);
-    */
+
     PyModule_AddObject(module, "NONE", (PyObject *) PyHP_StatementTypeObject_NONE);
     PyModule_AddObject(module, "RAW", (PyObject *) PyHP_StatementTypeObject_RAW);
     PyModule_AddObject(module, "INLINE", (PyObject *) PyHP_StatementTypeObject_INLINE);
@@ -77,6 +84,7 @@ PyMODINIT_FUNC PyHPInit_parser(void)
 
     return module;
 }
+
 static PyModuleDef PyHPInit_types_def = {
         .m_name = "pyhp.types",
 };

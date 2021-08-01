@@ -9,6 +9,19 @@ EXPORTS
 
         PyHPInit_parser
             PyHP_StatementType_ToObject
+            PyHP_StatementTypeObject_RAW
+            PyHP_StatementTypeObject_INLINE
+            PyHP_StatementTypeObject_BLOCK
 
             PyHP_ParserMatch_Type
             PyHP_ParserMatch_Converter
+
+            PyHP_Parser_FromString
+            PyHP_Parser_FromObject
+            PyHP_Parser_Next
+            PyHP_Parser_Free
+            PyHP_Parser_Copy
+
+            PyHP_ParserIterator_Type
+            PyHP_ParserIterator_Converter
+            PyHP_ParserIterator_Wrap

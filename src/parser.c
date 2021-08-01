@@ -2,119 +2,70 @@
 #include <structmember.h>
 
 #include <PyHP.h>
-#include <PyHP/modules.h>
+#include "_parser.h"
 
-static const char open_block_3_tag[] = "<?python3";
-static const char open_inline_3_tag[] = "<?3=";
-static const char open_block_2_tag[] = "<?python2";
-static const char open_inline_2_tag[] = "<?2=";
+
+static const char open_block_tag[] = "<?python";
+static const char open_inline_tag[] = "<?=";
 static const char close_tag[] = "?>";
 
 
-void PyHP_Parser_Init(PyHP_ParserIteratorState *const state)
+int PyHP_Parser_FromString(PyHP_ParserState *self, const char *string, Py_ssize_t len)
 {
-    state->pos = 0;
-    state->index = 0;
+    self->head.meta_info = &(PyHP_ParserIterator_Type.im);
+    self->pos = 0;
+    self->index = 0;
+    self->string = (void *) string;
+    self->len = len;
+    return 0;
 }
 
-PyObject *PyHP_AlignCode_Func(PyObject *module, PyObject *args, PyObject *kwargs)
+int PyHP_Parser_FromObject(PyHP_ParserState *self, PyObject *string)
 {
-    static char *kwlist[] = {"", "start", "end", NULL};
-    PyObject *string;
-    Py_ssize_t start;
-    Py_ssize_t end;
-    Py_ssize_t len;
-
-    start = 0;
-    end = PY_SSIZE_T_MAX;
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "U|nn:align_code", kwlist, &string, &start, &end))
-    {
-
-        return NULL;
-    }
-
-    if (end == PY_SSIZE_T_MAX)
-    {
-        end = PyUnicode_GET_LENGTH(string);
-    }
-    else if (end != PY_SSIZE_T_MAX && end > PyUnicode_GET_LENGTH(string))
-    {
-        PyErr_Format(
-                PyExc_IndexError,
-                "string index out of range ((end=%zd) > %zd)",
-                end,
-                PyUnicode_GET_LENGTH(string)
-        );
-        return NULL;
-    }
-    else if (end < 0)
-    {
-        end += PyUnicode_GET_LENGTH(string);
-        if (end < 0)
-        {
-            PyErr_Format(
-                    PyExc_IndexError,
-                    "string index out of range ((end=%zd) < %zd)",
-                    end - PyUnicode_GET_LENGTH(string),
-                    -PyUnicode_GET_LENGTH(string)
-            );
-            return NULL;
-        }
-    }
-
-    if (start < 0)
-    {
-        start += PyUnicode_GET_LENGTH(string);
-        if (start < 0)
-        {
-            PyErr_Format(
-                    PyExc_IndexError,
-                    "string index out of range ((start=%zd) < %zd)",
-                    start - PyUnicode_GET_LENGTH(string),
-                    -PyUnicode_GET_LENGTH(string)
-            );
-            return NULL;
-        }
-    }
-
-    if (start > end)
-    {
-        PyErr_Format(
-                PyExc_IndexError,
-                "requested string slice [%zd:%zd] has negative length ",
-                start,
-                end
-        );
-    }
-
-    len = end - start;
-
-
-    return PyHP_AlignCode_Object(string, start, len);
-}
-
-PyHP_ParserIterator_Object *PyHP_Parser_Func(PyObject *module, PyObject *string)
-{
-    PyHP_ParserIterator_Object *self;
-
-    if (!(PyUnicode_Check(string)))
-    {
-        PyErr_Format(PyExc_TypeError, "source must be str, not %s", Py_TYPE(string)->tp_name);
-    }
-
-
-    self = (PyHP_ParserIterator_Object *) (PyHP_ParserIterator_Type.tp_alloc(&PyHP_ParserIterator_Type, 0));
-    if (self == NULL)
-    {
-        PyErr_NoMemory();
-        return NULL;
-    }
-    PyHP_Parser_Init(&self->state);
+    self->head.meta_info = &(PyHP_ParserIterator_Type.im);
+    self->pos = 0;
+    self->index = 0;
+    self->string = (void *) string;
     Py_INCREF(string);
-    self->string = string;
+    self->len = -1;
+    return 0;
+}
 
-    return self;
+
+void PyHP_Parser_Free(PyHP_ParserState *self)
+{
+    if (self->len < 0)
+    {
+        Py_DECREF(self->string);
+    }
+}
+
+int PyHP_Parser_Copy(PyHP_ParserState *self, PyHP_ParserState *dst)
+{
+    *dst = *self;
+    if (self->len < 0)
+    {
+        Py_INCREF(self->string);
+    }
+    dst->head.meta_info = &(PyHP_ParserIterator_Type.im);
+    return 0;
+}
+
+static PyObject *PyHP_ParserIterator_Repr(PyHP_ParserIterator_Object *self)
+{
+    return PyUnicode_FromFormat(
+            "<%s object (pos %zd/%zd) at %p>",
+            Py_TYPE(self)->tp_name,
+            self->data.pos,
+            ((self->data.len < 0) ? PyUnicode_GetLength(self->data.string) : self->data.len),
+            self
+    );
+}
+
+static void PyHP_ParserIterator_Dealloc(PyHP_ParserIterator_Object *self)
+{
+    PyHP_Parser_Free(&(self->data));
+    Py_TYPE(self)->tp_free(self);
 }
 
 static PyHP_ParserIterator_Object *PyHP_ParserIterator_Iter(PyHP_ParserIterator_Object *self)
@@ -125,104 +76,288 @@ static PyHP_ParserIterator_Object *PyHP_ParserIterator_Iter(PyHP_ParserIterator_
 
 static PyHP_ParserMatch_Object *PyHP_ParserIterator_Next(PyHP_ParserIterator_Object *self)
 {
-    PyHP_ParserMatch match;
-    PyHP_ParserMatch_Object *object;
+    PyHP_ParserMatch_Object *mo;
+    PyHP_ParserMatch m;
+    PyObject *v;
 
-    match = PyHP_Parser_Next_Object(&(self->state), self->string);
+    switch (PyHP_Parser_Next(&(self->data), &m))
+    {
+        case -1:
+        case 0:
+            return NULL;
+        case 1:
+            break;
+    }
 
-    if (match.type == PyHP_StatementType_NONE)
+    if (self->data.len < 0)
+    {
+        v = PyUnicode_Substring(self->data.string, m.start, m.end);
+    }
+    else
+    {
+        v = PyUnicode_FromStringAndSize(((char *) (self->data.string)) + m.start, m.end - m.start);
+    }
+    if (v == NULL)
     {
         return NULL;
     }
 
-    object = (PyHP_ParserMatch_Object *) (PyHP_ParserMatch_Type.tp_alloc(&PyHP_ParserMatch_Type, 0));
-    if (object == NULL)
+    mo = (PyHP_ParserMatch_Object *) PyHP_ParserMatch_Type.tp_alloc(&PyHP_ParserMatch_Type, 0);
+    if (mo == NULL)
+    {
+        Py_DECREF(v);
+        PyErr_NoMemory();
+        return NULL;
+    }
+    mo->data = m;
+    mo->value = v;
+
+    return mo;
+}
+
+
+PyHP_IteratorMeta_Object PyHP_ParserIterator_Type = {
+        {
+                PyVarObject_HEAD_INIT(NULL, 0)
+                .tp_name = "pyhp.parser.parser_iterator",
+                .tp_basicsize = sizeof(PyHP_ParserIterator_Object),
+                .tp_dealloc = (destructor) PyHP_ParserIterator_Dealloc,
+                .tp_repr = (reprfunc) PyHP_ParserIterator_Repr,
+                .tp_iter = (getiterfunc) PyHP_ParserIterator_Iter,
+                .tp_iternext = (iternextfunc) PyHP_ParserIterator_Next
+        },
+        {
+                .im_next = (PyHP_Iterator_Next_FuncType) PyHP_Parser_Next,
+                .im_free = (PyHP_Iterator_Free_FuncType) PyHP_Parser_Free,
+                .im_copy = (PyHP_Iterator_Copy_FuncType) PyHP_Parser_Copy,
+        }
+};
+
+#if 0
+int PyHP_ParserState_Converter(PyObject *src, PyHP_ParserState_X *dst)
+{
+#if PY_VERSION_HEX >= 0x03010000
+    if (src == NULL)
+    {
+        dst->finalize((PyHP_IteratorHead *) &(dst->data));
+    }
+#endif
+
+    if (PyUnicode_Check(src))
+    {
+        if (PyHP_Parser_FromObject(dst, src) != 0)
+        {
+            return 0;
+        }
+        else
+        {
+#if PY_VERSION_HEX >= 0x03010000
+            return Py_CLEANUP_SUPPORTED;
+#else
+            return 1;
+#endif
+        }
+    }
+/*
+    else if (Py_TYPE(src) == (PyTypeObject *) &PyHP_ParserIterator_Type)
+    {
+        *dst = ((PyHP_ParserIterator_Object *) (src))->data;
+        return 1;
+    }
+*/
+    else
+    {
+        switch (PyObject_IsInstance(src, (PyObject *) &PyHP_ParserIterator_Type))
+        {
+            case -1:
+                return 0;
+            case 0:
+                PyErr_Format(
+                        PyExc_TypeError,
+                        "Can't extract parser state from '%R' object",
+                        Py_TYPE(src)
+                );
+                return 0;
+            case 1:
+                break;
+        }
+        if (PyHP_Parser_Copy(dst, &(((PyHP_ParserIterator_Object *) (src))->data)) != 0)
+        {
+            return 0;
+        }
+
+#if PY_VERSION_HEX >= 0x03010000
+        return Py_CLEANUP_SUPPORTED;
+#else
+        return 1;
+#endif
+    }
+}
+#endif
+
+PyHP_ParserIterator_Object *PyHP_ParserIterator_Wrap(PyHP_ParserState *src)
+{
+    PyHP_ParserIterator_Object *self;
+    self = (PyHP_ParserIterator_Object *) PyHP_ParserIterator_Type.tp.tp_alloc(&(PyHP_ParserIterator_Type.tp), 0);
+    if (self == NULL)
     {
         PyErr_NoMemory();
         return NULL;
     }
+    self->data = *src;
+    return self;
+}
 
-    object->meta = match;
-    object->value = PyUnicode_Substring(self->string, match.start, match.end - match.start);
-    if (object->value == NULL)
+#if 0
+PyHP_ParserIterator_Object *PyHP_ParserIterator_FromString(const char *string, Py_ssize_t len)
+{
+    PyHP_ParserState s;
+    PyHP_ParserIterator_Object *new;
+
+    if (PyHP_Parser_FromString(&s, string, len) != 0)
     {
-        Py_DECREF(object);
         return NULL;
     }
 
-    return object;
+    new = PyHP_ParserIterator_Wrap(&s);
+    if (new == NULL)
+    {
+        PyHP_Parser_Free(&s);
+        return NULL;
+    }
+    return new;
 }
+#endif
 
-static void PyHP_ParserIterator_Dealloc(PyHP_ParserIterator_Object *self)
+int PyHP_ParserIterator_Converter(PyObject *src, PyHP_ParserIterator_Object **dst)
 {
-    Py_DECREF(self->string);
-    Py_TYPE(self)->tp_free(self);
+    PyHP_ParserState s;
+
+#if PY_VERSION_HEX >= 0x03010000
+    if (src == NULL)
+    {
+        Py_DECREF(dst);
+    }
+#endif
+
+    if (Py_TYPE(src) == (PyTypeObject *) &PyHP_ParserIterator_Type)
+    {
+        *dst = (PyHP_ParserIterator_Object *) src;
+        Py_INCREF(src);
+#if PY_VERSION_HEX >= 0x03010000
+        return Py_CLEANUP_SUPPORTED;
+#else
+        return 1;
+#endif
+    }
+    else if (PyUnicode_Check(src))
+    {
+        if (PyHP_Parser_FromObject(&s, src) != 0)
+        {
+            return 0;
+        }
+        *dst = PyHP_ParserIterator_Wrap(&s);
+        if (*dst == NULL)
+        {
+            PyHP_Parser_Free(&s);
+            return 0;
+        }
+        else
+        {
+#if PY_VERSION_HEX >= 0x03010000
+            return Py_CLEANUP_SUPPORTED;
+#else
+            return 1;
+#endif
+        }
+    }
+    else
+    {
+        PyErr_Format(
+                PyExc_TypeError,
+                "Can't convert '%s' object to parser iterator",
+                Py_TYPE(src)
+        );
+        return 0;
+    }
+#if 0
+    switch (PyHP_ParserState_Converter(src, &s))
+    {
+        case 0:
+            return 0;
+        case 1:
+#if PY_VERSION_HEX >= 0x03010000
+            PyErr_Format(
+                    PyExc_RuntimeError,
+                    "'PyHP_ParserState_Converter' returned value without cleanup support; input type '%R'",
+                    Py_TYPE(src)
+            );
+            return 0;
+        case Py_CLEANUP_SUPPORTED:
+#endif
+            break;
+    }
+    *dst = PyHP_ParserIterator_Embed(&s);
+    if (*dst == NULL)
+    {
+        PyHP_Parser_Free(&s);
+        return 0;
+    }
+
+#if PY_VERSION_HEX >= 0x03010000
+    return Py_CLEANUP_SUPPORTED;
+#else
+    return 1;
+#endif
+#endif
 }
 
-PyMemberDef PyHP_ParserIterator_Members[] = {
-        {"_source", T_OBJECT, offsetof(PyHP_ParserIterator_Object, string), READONLY},
-        {NULL}
-};
 
-
-PyTypeObject PyHP_ParserIterator_Type = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        .tp_name = "pyhp.parser.parser_iterator",
-        .tp_basicsize = sizeof(PyHP_ParserIterator_Object),
-        .tp_dealloc = (destructor) PyHP_ParserIterator_Dealloc,
-        .tp_iter = (getiterfunc) PyHP_ParserIterator_Iter,
-        .tp_iternext = (iternextfunc) PyHP_ParserIterator_Next,
-        .tp_members = PyHP_ParserIterator_Members,
-};
-
-
-static void PyHP_ParserMatch_Dealloc(PyHP_ParserMatch_Object *self)
+#if 0
+PyHP_ParserIterator_Object *PyHP_ParserIterator_Wrap(PyHP_ParserState *src)
 {
-    Py_XDECREF(self->value);
-    Py_TYPE(self)->tp_free(self);
+    PyHP_ParserIterator_Object *self;
+    PyHP_ParserState s;
+
+    if (PyHP_Parser_Copy(src, &s) != 0)
+    {
+        return NULL;
+    }
+
+    self = PyHP_ParserIterator_Embed(&s);
+    if (self == NULL)
+    {
+        PyHP_Parser_Free(&s);
+    }
+    return self;
 }
+#endif
 
-static PyMemberDef PyHP_ParserMatch_Members[] = {
-        {"value", T_OBJECT,   offsetof(PyHP_ParserMatch_Object, value),      READONLY},
-        {"start", T_PYSSIZET, offsetof(PyHP_ParserMatch_Object, meta.start), READONLY},
-        {"end",   T_PYSSIZET, offsetof(PyHP_ParserMatch_Object, meta.end),   READONLY},
-        {NULL}
-};
-
-static PyObject *PyHP_ParserMatch_GetType(PyHP_ParserMatch_Object *self)
+PyHP_ParserIterator_Object *PyHP_Parser_Func(PyObject *module, PyObject *args)
 {
-    return PyLong_FromLong(self->meta.type);
+    PyObject *string;
+    PyHP_ParserState s;
+    PyHP_ParserIterator_Object *o;
+
+    if (!PyArg_ParseTuple(args, "U", &string))
+    {
+        return NULL;
+    }
+
+    if (PyHP_Parser_FromObject(&s, string) != 0)
+    {
+        return NULL;
+    }
+
+    o = PyHP_ParserIterator_Wrap(&s);
+    if (o == NULL)
+    {
+        PyHP_Parser_Free(&s);
+        return NULL;
+    }
+
+
+    return o;
+
+
 }
-
-static PyGetSetDef PyHP_ParserMatch_GetSet[] = {
-        {"type", (getter) PyHP_ParserMatch_GetType, NULL, ""},
-        {NULL}
-};
-
-static PyObject *PyHP_ParserMatch_Repr(PyHP_ParserMatch_Object *self)
-{
-    return PyUnicode_FromFormat(
-            "<%s object; span=(%zd, %zd) type=%d>",
-            Py_TYPE(self)->tp_name,
-            self->meta.start,
-            self->meta.end,
-            self->meta.type
-    );
-}
-
-static PyObject *PyHP_ParserMatch_Str(PyHP_ParserMatch_Object *self)
-{
-    Py_INCREF(self);
-    return self->value;
-}
-
-PyTypeObject PyHP_ParserMatch_Type = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        .tp_name = "pyhp.parser.parser_match",
-        .tp_basicsize = sizeof(PyHP_ParserMatch_Object),
-        .tp_dealloc = (destructor) PyHP_ParserMatch_Dealloc,
-        .tp_repr = (reprfunc) PyHP_ParserMatch_Repr,
-        .tp_members = PyHP_ParserMatch_Members,
-        .tp_getset = PyHP_ParserMatch_GetSet,
-/* .tp_str = (reprfunc) PyHP_ParserMatch_Str, */
-};

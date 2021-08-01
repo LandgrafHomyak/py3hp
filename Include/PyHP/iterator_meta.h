@@ -1,11 +1,15 @@
 #ifndef PyHP_ITERATOR_META_H
 #define PyHP_ITERATOR_META_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct PyHP_IteratorHead PyHP_IteratorHead;
 
 typedef int (*PyHP_Iterator_Init_FuncType)(PyHP_IteratorHead *, void *);
 
-typedef void (*PyHP_Iterator_Next_FuncType)(PyHP_IteratorHead *, void *);
+typedef int (*PyHP_Iterator_Next_FuncType)(PyHP_IteratorHead *, void *);
 
 typedef void (*PyHP_Iterator_Free_FuncType)(PyHP_IteratorHead *);
 
@@ -27,7 +31,7 @@ typedef struct PyHP_IteratorMeta_Object
     PyHP_IteratorMeta im;
 } PyHP_IteratorMeta_Object;
 
-PyTypeObject PyHP_IteratorMeta_Type;
+extern PyTypeObject PyHP_IteratorMeta_Type;
 
 struct PyHP_IteratorHead
 {
@@ -41,5 +45,8 @@ struct PyHP_IteratorHead
 #define PyHP_Iterator_Free(SELF) (((PyHP_IteratorHead *)(SELF))->meta_info->im_free((PyHP_IteratorHead *)(SELF)))
 #define PyHP_Iterator_Copy(SELF, DST) (((PyHP_IteratorHead *)(SELF))->meta_info->im_copy((PyHP_IteratorHead *)(SELF), (PyHP_IteratorHead *)(DST)))
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* PyHP_ITERATOR_META_H */

@@ -3,6 +3,10 @@
 #ifndef PyHP_STATEMENT_TYPE_H
 # define PyHP_STATEMENT_TYPE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum PyHP_StatementType
 {
     PyHP_StatementType_NONE = 0,
@@ -25,5 +29,9 @@ extern const PyHP_StatementType_Object *const PyHP_StatementTypeObject_INLINE;
 extern const PyHP_StatementType_Object *const PyHP_StatementTypeObject_BLOCK;
 
 const PyHP_StatementType_Object *PyHP_StatementType_ToObject(PyHP_StatementType);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* PyHP_STATEMENT_TYPE_H */

@@ -1,10 +1,11 @@
 #include <Python.h>
 
 #include <PyHP.h>
+#include "_parser.h"
 
 
 template<typename char_type>
-static PyHP_ParserMatch PyHP_Parser_Next(PyHP_ParserIteratorState *const state, const char_type *const string, const Py_ssize_t len)
+static PyHP_ParserMatch PyHP_Parser_Next(PyHP_ParserState *const state, const char_type *const string, const Py_ssize_t len)
 {
     Py_ssize_t i;
     PyHP_ParserMatch match;
@@ -56,52 +57,27 @@ static PyHP_ParserMatch PyHP_Parser_Next(PyHP_ParserIteratorState *const state, 
                     {
                         if (string[i] == '<' /* && len - i >= 2 */ && string[i + 1] == '?') /* check not require because i < code_end <= len - 2 */
                         {
-                            if (i > newline_pos && code_end - i >= 4 &&
-                                (string[i + 2] == '3' || string[i + 2] == '2') &&
-                                string[i + 3] == '='
-                                    )
+                            if (i > newline_pos && code_end - i >= 4 && string[i + 2] == '=')
                             {
-                                switch (string[i + 2])
-                                {
-                                    case '1':
-                                        state->code_match.type = PyHP_StatementType_INLINE1;
-                                        break;
-                                    case '2':
-                                        state->code_match.type = PyHP_StatementType_INLINE2;
-                                        break;
-                                    case '3':
-                                        state->code_match.type = PyHP_StatementType_INLINE3;
-                                        break;
-                                }
+                                state->code_match.type = PyHP_StatementType_INLINE;
                                 state->raw_start = state->pos;
-                                state->code_match.start = i + 4;
+                                state->code_match.start = i + 3;
                                 goto found;
                             }
-                            if (code_end - i >= 10 &&
-                                string[i + 2] == 'p' &&
-                                string[i + 3] == 'y' &&
-                                string[i + 4] == 't' &&
-                                string[i + 5] == 'h' &&
-                                string[i + 6] == 'o' &&
-                                string[i + 7] == 'n' &&
-                                (string[i + 8] == '2' || string[i + 8] == '3') &&
-                                (string[i + 9] == ' ' || string[i + 9] == '\n' || string[i + 9] == '\t')
+                            else if (
+                                    code_end - i >= 10 &&
+                                    string[i + 2] == 'p' &&
+                                    string[i + 3] == 'y' &&
+                                    string[i + 4] == 't' &&
+                                    string[i + 5] == 'h' &&
+                                    string[i + 6] == 'o' &&
+                                    string[i + 7] == 'n' &&
+                                    (string[i + 8] == ' ' || string[i + 8] == '\n' || string[i + 8] == '\t')
                                     )
                             {
-                                switch (string[i + 8])
-                                {
-                                    case '1':
-                                        state->code_match.type = PyHP_StatementType_BLOCK1;
-                                        break;
-                                    case '2':
-                                        state->code_match.type = PyHP_StatementType_BLOCK2;
-                                        break;
-                                    case '3':
-                                        state->code_match.type = PyHP_StatementType_BLOCK3;
-                                        break;
-                                }
+                                state->code_match.type = PyHP_StatementType_BLOCK;
                                 state->raw_start = state->pos;
-                                state->code_match.start = i + 9;
+                                state->code_match.start = i + 8;
                                 goto found;
                             }
                         }
@@ -141,25 +117,40 @@ static PyHP_ParserMatch PyHP_Parser_Next(PyHP_ParserIteratorState *const state, 
     return PyHP_Parser_Next<char_type>(state, string, len);
 }
 
-PyHP_ParserMatch PyHP_Parser_Next_String(PyHP_ParserIteratorState *state, const char *string, Py_ssize_t len)
+int PyHP_Parser_Next(PyHP_ParserState *self, PyHP_ParserMatch *dst)
 {
-    return PyHP_Parser_Next<char>(state, string, len);
-}
-
-PyHP_ParserMatch PyHP_Parser_Next_Object(PyHP_ParserIteratorState *state, PyObject *string)
-{
-    switch (PyUnicode_KIND(string))
+    if (self->len < 0)
     {
-        case PyUnicode_1BYTE_KIND:
-            return PyHP_Parser_Next<Py_UCS1>(state, PyUnicode_1BYTE_DATA(string), PyUnicode_GET_LENGTH(string));
-        case PyUnicode_2BYTE_KIND:
-            return PyHP_Parser_Next<Py_UCS2>(state, PyUnicode_2BYTE_DATA(string), PyUnicode_GET_LENGTH(string));
-        case PyUnicode_4BYTE_KIND:
-            return PyHP_Parser_Next<Py_UCS4>(state, PyUnicode_4BYTE_DATA(string), PyUnicode_GET_LENGTH(string));
-        case PyUnicode_WCHAR_KIND:
-            return PyHP_Parser_Next<Py_UNICODE>(state, PyUnicode_AS_UNICODE(string), PyUnicode_GET_LENGTH(string));
+        switch (PyUnicode_KIND(self->string))
+        {
+            case PyUnicode_1BYTE_KIND:
+                *dst = PyHP_Parser_Next<Py_UCS1>(self, PyUnicode_1BYTE_DATA(self->string), PyUnicode_GetLength((PyObject *) (self->string)));
+                break;
+            case PyUnicode_2BYTE_KIND:
+                *dst = PyHP_Parser_Next<Py_UCS2>(self, PyUnicode_2BYTE_DATA(self->string), PyUnicode_GetLength((PyObject *) (self->string)));
+                break;
+            case PyUnicode_4BYTE_KIND:
+                *dst = PyHP_Parser_Next<Py_UCS4>(self, PyUnicode_4BYTE_DATA(self->string), PyUnicode_GetLength((PyObject *) (self->string)));
+                break;
+            case PyUnicode_WCHAR_KIND:
+                *dst = PyHP_Parser_Next<Py_UNICODE>(self, PyUnicode_AS_UNICODE(self->string), PyUnicode_GetLength((PyObject *) (self->string)));
+                break;
+        }
+    }
+    else
+    {
+        *dst = PyHP_Parser_Next<char>(self, (char *) self->string, self->len);
+    }
+    if (dst->type == PyHP_StatementType_NONE)
+    {
+        return 0;
+    }
+    else
+    {
+        return 1;
     }
 }
+
 
 template<typename dst_char_type, typename src_char_type>
 static Py_ssize_t PyHP_AlignCodeS(dst_char_type *const dst, const src_char_type *const src, const Py_ssize_t start, const Py_ssize_t len)
@@ -294,6 +285,11 @@ static Py_ssize_t PyHP_AlignCodeS(dst_char_type *const dst, const src_char_type 
     return d_pos;
 }
 
+Py_ssize_t PyHP_AlignCodeS_String(char *dst, const char *src, const Py_ssize_t start, const Py_ssize_t len)
+{
+    return PyHP_AlignCodeS<char, char>(dst, src, start, len);
+}
+
 PyObject *PyHP_AlignCode_Object(PyObject *string, const Py_ssize_t start, const Py_ssize_t len)
 {
     void *dst;
@@ -325,16 +321,16 @@ PyObject *PyHP_AlignCode_Object(PyObject *string, const Py_ssize_t start, const 
     switch (PyUnicode_KIND(string))
     {
         case PyUnicode_1BYTE_KIND:
-            new_len = PyHP_AlignCodeS<Py_UCS1, Py_UCS1>((Py_UCS1 *)dst, (Py_UCS1 *)PyUnicode_1BYTE_DATA(string), start, len);
+            new_len = PyHP_AlignCodeS<Py_UCS1, Py_UCS1>((Py_UCS1 *) dst, (Py_UCS1 *) PyUnicode_1BYTE_DATA(string), start, len);
             break;
         case PyUnicode_2BYTE_KIND:
-            new_len = PyHP_AlignCodeS<Py_UCS2, Py_UCS2>((Py_UCS2 *)dst, (Py_UCS2 *)PyUnicode_2BYTE_DATA(string), start, len);
+            new_len = PyHP_AlignCodeS<Py_UCS2, Py_UCS2>((Py_UCS2 *) dst, (Py_UCS2 *) PyUnicode_2BYTE_DATA(string), start, len);
             break;
         case PyUnicode_4BYTE_KIND:
-            new_len = PyHP_AlignCodeS<Py_UCS4, Py_UCS4>((Py_UCS4 *)dst, (Py_UCS4 *)PyUnicode_4BYTE_DATA(string), start, len);
+            new_len = PyHP_AlignCodeS<Py_UCS4, Py_UCS4>((Py_UCS4 *) dst, (Py_UCS4 *) PyUnicode_4BYTE_DATA(string), start, len);
             break;
         case PyUnicode_WCHAR_KIND:
-            new_len = PyHP_AlignCodeS<Py_UNICODE, Py_UNICODE>((Py_UNICODE *)dst, (Py_UNICODE *)PyUnicode_AS_UNICODE(string), start, len);
+            new_len = PyHP_AlignCodeS<Py_UNICODE, Py_UNICODE>((Py_UNICODE *) dst, (Py_UNICODE *) PyUnicode_AS_UNICODE(string), start, len);
             break;
     }
     if (new_len < 0)

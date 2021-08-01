@@ -21,8 +21,9 @@ python_add_library(
 
         src/statement_type.c
         src/parser_match.c
-#        src/parser.c
-#        src/_parser.cpp
+        src/parser.c
+        src/_parser.cpp
+        src/_parser.h
 #        src/compiler.c
 )
 set_target_properties(PyHP_api PROPERTIES OUTPUT_NAME pyhp)

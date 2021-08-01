@@ -1,4 +1,5 @@
 #include <Python.h>
+#include "iterator_meta.h"
 
 #ifndef PyHP_PARSER_H
 #define PyHP_PARSER_H
@@ -7,73 +8,60 @@
 extern "C" {
 #endif
 
-typedef enum
-{
-    PyHP_StatementType_NONE = 0,
-    PyHP_StatementType_RAW = 1,
-    PyHP_StatementType_INLINE = 2,
-    PyHP_StatementType_BLOCK = 3,
-    PyHP_StatementType_INLINE3 = 4,
-    PyHP_StatementType_BLOCK3 = 5,
-    PyHP_StatementType_INLINE2 = 6,
-    PyHP_StatementType_BLOCK2 = 7,
-    PyHP_StatementType_INLINE1 = 8,
-    PyHP_StatementType_BLOCK1 = 9,
-} PyHP_StatementType;
 
-typedef struct
-{
-    PyHP_StatementType type;
-    Py_ssize_t start;
-    Py_ssize_t end;
-} PyHP_ParserMatch;
-
-typedef struct
+typedef struct PyHP_ParserState
 {
     Py_ssize_t pos;
     Py_ssize_t raw_start;
     Py_ssize_t raw_end;
     PyHP_ParserMatch code_match;
     signed int index;
-} PyHP_ParserIteratorState;
+    PyHP_IteratorHead head;
+    void *string;
+    Py_ssize_t len;
+} PyHP_ParserState;
 
-
-void PyHP_Parser_Init(PyHP_ParserIteratorState *state);
-
-PyHP_ParserMatch PyHP_Parser_Next_String(PyHP_ParserIteratorState *state, const char *string, Py_ssize_t len);
-
-PyHP_ParserMatch PyHP_Parser_Next_Object(PyHP_ParserIteratorState *state, PyObject *string);
-
-
-#define PyHP_AlignCodeS_Ascii(DST, SRC, START, LEN) (PyHP_AlignCodeS((DST), (SRC), (START), (LEN), PyUnicode_1BYTE_KIND))
-#define PyHP_AlignCodeS_Object(DST, SRC, START) (PyHP_AlignCodeS(PyUnicode_DATA(DST), PyUnicode_DATA(SRC), (START), PyUnicode_GET_LENGTH(SRC), PyUnicode_KIND(SRC)))
-
-PyObject *PyHP_AlignCode(PyObject *string, Py_ssize_t start, Py_ssize_t len);
-
-PyObject *PyHP_AlignCode_Object(PyObject *string, Py_ssize_t start, Py_ssize_t len);
-
-PyObject *PyHP_AlignCode_Func(PyObject *module, PyObject *args, PyObject *kwargs);
-
-typedef struct
+typedef struct PyHP_ParserIterator_Object
 {
     PyObject_HEAD
-    PyHP_ParserIteratorState state;
-    PyObject *string;
+    PyHP_ParserState data;
 } PyHP_ParserIterator_Object;
 
-typedef struct
+#if 0
+typedef struct PyHP_ParserState_X
 {
-    PyObject_HEAD
-    PyObject *value;
-    PyHP_ParserMatch meta;
-} PyHP_ParserMatch_Object;
+    PyHP_ParserState data;
+    PyHP_Iterator_Free_FuncType finalize;
+} PyHP_ParserState_X;
+#endif
 
-PyHP_ParserIterator_Object *PyHP_Parser_Func(PyObject *module, PyObject *string);
+extern PyHP_IteratorMeta_Object PyHP_ParserIterator_Type;
 
-extern PyTypeObject PyHP_ParserIterator_Type;
+int PyHP_Parser_FromString(PyHP_ParserState *self, const char *string, Py_ssize_t len);
 
-extern PyTypeObject PyHP_ParserMatch_Type;
+int PyHP_Parser_FromObject(PyHP_ParserState *self, PyObject *string);
+
+int PyHP_Parser_Next(PyHP_ParserState *self, PyHP_ParserMatch *dst);
+
+void PyHP_Parser_Free(PyHP_ParserState *self);
+
+int PyHP_Parser_Copy(PyHP_ParserState *self, PyHP_ParserState *dst);
+
+#if 0
+int PyHP_ParserState_Converter(PyObject *src, PyHP_ParserState_X *dst);
+
+PyHP_ParserIterator_Object *PyHP_ParserIterator_FromString(const char *string, Py_ssize_t len);
+#endif
+
+PyHP_ParserIterator_Object *PyHP_ParserIterator_Wrap(PyHP_ParserState *src);
+
+int PyHP_ParserIterator_Converter(PyObject *src, PyHP_ParserIterator_Object **dst);
+
+#define PyHP_ParserIterator_DATA(OBJECT) (((PyHP_ParserIterator_Object *)(OBJECT))->data)
+
+
 #ifdef __cplusplus
 }
 #endif
+
 #endif /* PyHP_PARSER_H */
