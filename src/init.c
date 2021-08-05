@@ -4,6 +4,7 @@
 #include <PyHP/modules.h>
 
 #include "_parser.h"
+#include "_align_code.h"
 
 int PyHP_Init(void)
 {
@@ -47,9 +48,7 @@ int PyHP_Init(void)
 
 
 static PyMethodDef PyHPInit_parser_methods[] = {
-        /*
         {"align_code", (PyCFunction) PyHP_AlignCode_Func, METH_VARARGS | METH_KEYWORDS},
-        */
         {"parse",      (PyCFunction) PyHP_Parser_Func,    METH_VARARGS},
         {NULL}
 };

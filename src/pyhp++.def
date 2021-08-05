@@ -1,0 +1,4 @@
+LIBRARY PyHP++
+EXPORTS
+   PyHP_AlignCode
+   PyHP_Parse

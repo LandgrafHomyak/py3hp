@@ -24,19 +24,29 @@ python_add_library(
         src/parser.c
         src/_parser.cpp
         src/_parser.h
-#        src/compiler.c
+        src/_align_code.cpp
+        src/_align_code.h
+        #src/compiler.c
 )
 set_target_properties(PyHP_api PROPERTIES OUTPUT_NAME pyhp)
+target_include_directories(PyHP_api PUBLIC Include)
 
-target_include_directories(
-        PyHP_api
+python_add_library(
+        PyHP_api++
+        STATIC
 
-        PUBLIC
-        Include
+        src/pyhp++.def
+
+        src/_parser.cpp
+        src/_parser.h
+        src/_align_code.cpp
+        src/_align_code.h
 )
+set_target_properties(PyHP_api++ PROPERTIES OUTPUT_NAME pyhp++)
+target_link_libraries(PyHP_api++ PUBLIC PyHP_api)
 
 install(
-        TARGETS PyHP_api DESTINATION pyhp
+        TARGETS PyHP_api PyHP_api++ DESTINATION pyhp
 )
 
 python_add_library(
