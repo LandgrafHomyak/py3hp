@@ -9,6 +9,7 @@ EXPORTS
 
         PyHPInit_parser
             PyHP_StatementType_ToObject
+            PyHP_StatementTypeObject_NONE
             PyHP_StatementTypeObject_RAW
             PyHP_StatementTypeObject_INLINE
             PyHP_StatementTypeObject_BLOCK
@@ -25,3 +26,12 @@ EXPORTS
             PyHP_ParserIterator_Type
             PyHP_ParserIterator_Converter
             PyHP_ParserIterator_Wrap
+
+
+        PyHPInit_compiler
+            PyHP_CommandType_Type
+            PyHP_CommandType_ToObject
+            PyHP_CommandTypeObject_NONE
+            PyHP_CommandTypeObject_TEXT
+            PyHP_CommandTypeObject_EVAL
+            PyHP_CommandTypeObject_EXEC

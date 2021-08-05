@@ -24,8 +24,10 @@ python_add_library(
         src/parser.c
         src/_parser.cpp
         src/_parser.h
+
         src/_align_code.cpp
         src/_align_code.h
+        src/command_type.c
         #src/compiler.c
 )
 set_target_properties(PyHP_api PROPERTIES OUTPUT_NAME pyhp)
@@ -60,18 +62,16 @@ target_link_libraries(python_pyhp_parser PRIVATE PyHP_api)
 set_target_properties(python_pyhp_parser PROPERTIES OUTPUT_NAME parser)
 
 python_add_library(
-        python_pyhp_types
+        python_pyhp_compiler
         MODULE
 
-        src/modules/types.c
-
-
+        src/modules/compiler.c
 )
-add_dependencies(python_pyhp_types PyHP_api)
-target_link_libraries(python_pyhp_types PRIVATE PyHP_api)
-set_target_properties(python_pyhp_types PROPERTIES OUTPUT_NAME types)
+add_dependencies(python_pyhp_compiler PyHP_api)
+target_link_libraries(python_pyhp_compiler PRIVATE PyHP_api)
+set_target_properties(python_pyhp_compiler PROPERTIES OUTPUT_NAME compiler)
 
 
 install(
-        TARGETS python_pyhp_parser DESTINATION pyhp
+        TARGETS python_pyhp_parser python_pyhp_compiler DESTINATION pyhp
 )

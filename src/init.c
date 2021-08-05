@@ -25,6 +25,10 @@ int PyHP_Init(void)
     {
         return -1;
     }
+    if (PyType_Ready(&PyHP_CommandType_Type))
+    {
+        return -1;
+    }
     /*if (PyType_Ready(&PyHP_ParserIterator_Type))
     {
         return -1;
@@ -106,7 +110,7 @@ PyMODINIT_FUNC PyHPInit_types(void)
 
     return module;
 }
-/*
+
 
 static PyMethodDef PyHPInit_compiler_methods[] = {
         {NULL}
@@ -132,14 +136,15 @@ PyMODINIT_FUNC PyHPInit_compiler(void)
         return NULL;
     }
 
-    PyModule_AddObject(module, "NONE", (PyObject *) &PyHP_CommandType_NONE);
-    PyModule_AddObject(module, "TEXT", (PyObject *) &PyHP_CommandType_TEXT);
-    PyModule_AddObject(module, "EVAl", (PyObject *) &PyHP_CommandType_EVAL);
-    PyModule_AddObject(module, "EXEC", (PyObject *) &PyHP_CommandType_EXEC);
+    PyModule_AddObject(module, "NONE", (PyObject *) PyHP_CommandTypeObject_NONE);
+    PyModule_AddObject(module, "TEXT", (PyObject *) PyHP_CommandTypeObject_TEXT);
+    PyModule_AddObject(module, "EVAL", (PyObject *) PyHP_CommandTypeObject_EXEC);
+    PyModule_AddObject(module, "EXEC", (PyObject *) PyHP_CommandTypeObject_EVAL);
+/*
 
     PyModule_AddObject(module, "precompiler_iterator", (PyObject *) &PyHP_PreCompilerItertor_Type);
     PyModule_AddObject(module, "precompiler_command", (PyObject *) &PyHP_PreCompilerCommand_Type);
+*/
 
     return module;
 }
-*/
