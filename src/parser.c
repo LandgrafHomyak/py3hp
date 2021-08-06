@@ -2,7 +2,7 @@
 #include <structmember.h>
 
 #include <PyHP.h>
-#include "_parser.h"
+#include "parser.h"
 
 
 static const char open_block_tag[] = "<?python";

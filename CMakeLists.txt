@@ -22,12 +22,14 @@ python_add_library(
         src/statement_type.c
         src/parser_match.c
         src/parser.c
-        src/_parser.cpp
-        src/_parser.h
+        src/parser.cpp
+        src/parser.h
 
-        src/_align_code.cpp
-        src/_align_code.h
+        src/align_code.cpp
+        src/align_code.h
         src/command_type.c
+        src/prepare_result.c
+        #src/prepare.c
         #src/compiler.c
 )
 set_target_properties(PyHP_api PROPERTIES OUTPUT_NAME pyhp)
@@ -39,10 +41,10 @@ python_add_library(
 
         src/pyhp++.def
 
-        src/_parser.cpp
-        src/_parser.h
-        src/_align_code.cpp
-        src/_align_code.h
+        src/parser.cpp
+        src/parser.h
+        src/align_code.cpp
+        src/align_code.h
 )
 set_target_properties(PyHP_api++ PROPERTIES OUTPUT_NAME pyhp++)
 target_link_libraries(PyHP_api++ PUBLIC PyHP_api)

@@ -6,6 +6,8 @@
 #include "PyHP/parser_match.h"
 #include "PyHP/parser.h"
 #include "PyHP/command_type.h"
+#include "PyHP/prepare_result.h"
+//#include "PyHP/prepare.h"
 
 
 int PyHP_Init(void);

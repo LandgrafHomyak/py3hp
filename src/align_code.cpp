@@ -3,7 +3,7 @@
 #include <PyHP.h>
 #include <PyHP.hpp>
 
-#include "_align_code.h"
+#include "align_code.h"
 
 
 template<typename dst_char_type, typename src_char_type>

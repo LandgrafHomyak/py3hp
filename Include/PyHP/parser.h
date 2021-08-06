@@ -11,12 +11,12 @@ extern "C" {
 
 typedef struct PyHP_ParserState
 {
+    PyHP_IteratorHead head;
     Py_ssize_t pos;
     Py_ssize_t raw_start;
     Py_ssize_t raw_end;
     PyHP_ParserMatch code_match;
     signed int index;
-    PyHP_IteratorHead head;
     void *string;
     Py_ssize_t len;
 } PyHP_ParserState;

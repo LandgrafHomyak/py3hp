@@ -27,6 +27,9 @@ EXPORTS
             PyHP_ParserIterator_Converter
             PyHP_ParserIterator_Wrap
 
+            PyHP_PrepareResult_Type
+            PyHP_PrepareResult_Converter
+
 
         PyHPInit_compiler
             PyHP_CommandType_Type
