@@ -26,7 +26,7 @@ python_add_library(
         src/parser.cpp
 
         src/prepare_result.c
-        #src/align_code.cpp
+        src/align_code.cpp
         src/prepare.c
         src/prepare.cpp
 

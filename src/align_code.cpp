@@ -5,6 +5,7 @@
 
 #include "py_functions.h"
 
+template Py_ssize_t PyHP_AlignCode<char, char>(char *, const char *, Py_ssize_t, Py_ssize_t);
 
 template<typename dst_char_type, typename src_char_type>
 Py_ssize_t PyHP_AlignCode(dst_char_type *const dst, const src_char_type *const src, const Py_ssize_t start, const Py_ssize_t len)

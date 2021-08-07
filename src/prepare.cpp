@@ -4,7 +4,8 @@
 
 #include <PyHP.h>
 #include <PyHP.hpp>
-#include "align_code.cpp"
+
+
 int PyHP_Prepare_Next(PyHP_PrepareStateWithParent *self, PyHP_PrepareResult *dst)
 {
     PyHP_ParserState *ps;
