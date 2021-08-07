@@ -30,6 +30,14 @@ EXPORTS
             PyHP_PrepareResult_Type
             PyHP_PrepareResult_Converter
 
+            PyHP_PrepareIterator_Type
+            PyHP_Prepare_BindParser
+            PyHP_Prepare_WrapParser
+            PyHP_Prepare_FromParser
+            PyHP_Prepare_Next
+            PyHP_Prepare_Free
+            PyHP_Prepare_Copy
+
 
         PyHPInit_compiler
             PyHP_CommandType_Type

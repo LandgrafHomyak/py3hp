@@ -3,8 +3,7 @@
 #include <PyHP.h>
 #include <PyHP/modules.h>
 
-#include "parser.h"
-#include "align_code.h"
+#include "py_functions.h"
 
 int PyHP_Init(void)
 {
@@ -26,6 +25,10 @@ int PyHP_Init(void)
         return -1;
     }
     if (PyType_Ready(&PyHP_PrepareResult_Type))
+    {
+        return -1;
+    }
+    if (PyType_Ready(&(PyHP_PrepareIterator_Type.tp)))
     {
         return -1;
     }
@@ -58,6 +61,7 @@ int PyHP_Init(void)
 static PyMethodDef PyHPInit_parser_methods[] = {
         {"align_code", (PyCFunction) PyHP_AlignCode_Func, METH_VARARGS | METH_KEYWORDS},
         {"parse",      (PyCFunction) PyHP_Parser_Func,    METH_VARARGS},
+        {"prepare",      (PyCFunction) PyHP_Prepare_Func,    METH_VARARGS},
         {NULL}
 };
 static PyModuleDef PyHPInit_parser_def = {

@@ -3,8 +3,6 @@
 #include <PyHP.h>
 #include <PyHP.hpp>
 
-#include "parser.h"
-
 
 template<typename char_type>
 PyHP_ParserMatch PyHP_Parse(PyHP_ParserState *const state, const char_type *const string, const Py_ssize_t len)
@@ -145,10 +143,10 @@ int PyHP_Parser_Next(PyHP_ParserState *self, PyHP_ParserMatch *dst)
     }
     if (dst->type == PyHP_StatementType_NONE)
     {
-        return 0;
+        return PyHP_Iterator_NEXT_END;
     }
     else
     {
-        return 1;
+        return PyHP_Iterator_NEXT_SUCCESSFUL;
     }
 }

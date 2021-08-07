@@ -5,6 +5,10 @@
 extern "C" {
 #endif
 
+#define PyHP_Iterator_NEXT_SUCCESSFUL (1)
+#define PyHP_Iterator_NEXT_END (0)
+#define PyHP_Iterator_NEXT_ERROR (-1)
+    
 typedef struct PyHP_IteratorHead PyHP_IteratorHead;
 
 typedef int (*PyHP_Iterator_Init_FuncType)(PyHP_IteratorHead *, void *);
@@ -38,12 +42,13 @@ struct PyHP_IteratorHead
     PyHP_IteratorMeta *meta_info;
 };
 
-/*
+#if 0
 #define PyHP_Iterator_Init(DST, DATA) (((PyHP_IteratorHead *)(SELF))->meta_info->im_init((PyHP_IteratorHead *)(DST), (void *)(DATA)))
-*/
 #define PyHP_Iterator_Next(SELF, DST) (((PyHP_IteratorHead *)(SELF))->meta_info->im_next((PyHP_IteratorHead *)(SELF), (void *)(DST)))
 #define PyHP_Iterator_Free(SELF) (((PyHP_IteratorHead *)(SELF))->meta_info->im_free((PyHP_IteratorHead *)(SELF)))
 #define PyHP_Iterator_Copy(SELF, DST) (((PyHP_IteratorHead *)(SELF))->meta_info->im_copy((PyHP_IteratorHead *)(SELF), (PyHP_IteratorHead *)(DST)))
+#endif
+
 
 #ifdef __cplusplus
 }

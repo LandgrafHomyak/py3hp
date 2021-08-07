@@ -3,7 +3,9 @@
 
 #ifndef PyHP_PREPARE_RESULT_H
 #define PyHP_PREPARE_RESULT_H
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 typedef struct PyHP_PrepareResult
 {
     PyHP_StatementType type;
@@ -20,5 +22,7 @@ typedef struct PyHP_PrepareResult_Object
 extern PyTypeObject PyHP_PrepareResult_Type;
 
 int PyHP_PrepareResult_Converter(PyHP_PrepareResult_Object *src, PyHP_PrepareResult *dst);
-
+#ifdef __cplusplus
+}
+#endif
 #endif /* PyHP_PREPARE_RESULT_H */
