@@ -36,6 +36,10 @@ int PyHP_Init(void)
     {
         return -1;
     }
+    if (PyType_Ready(&PyHP_Command_Type))
+    {
+        return -1;
+    }
     /*if (PyType_Ready(&PyHP_ParserIterator_Type))
     {
         return -1;
@@ -84,13 +88,16 @@ PyMODINIT_FUNC PyHPInit_parser(void)
         return NULL;
     }
 
-    PyModule_AddObject(module, "parser_iterator", (PyObject *) &PyHP_ParserIterator_Type);
-    PyModule_AddObject(module, "parser_match", (PyObject *) &PyHP_ParserMatch_Type);
-
     PyModule_AddObject(module, "NONE", (PyObject *) PyHP_StatementTypeObject_NONE);
     PyModule_AddObject(module, "RAW", (PyObject *) PyHP_StatementTypeObject_RAW);
     PyModule_AddObject(module, "INLINE", (PyObject *) PyHP_StatementTypeObject_INLINE);
     PyModule_AddObject(module, "BLOCK", (PyObject *) PyHP_StatementTypeObject_BLOCK);
+
+    PyModule_AddObject(module, "parser_match", (PyObject *) &PyHP_ParserMatch_Type);
+    PyModule_AddObject(module, "parser_iterator", (PyObject *) &PyHP_ParserIterator_Type);
+
+    PyModule_AddObject(module, "prepare_result", (PyObject *) &PyHP_PrepareResult_Type);
+    PyModule_AddObject(module, "prepare_iterator", (PyObject *) &PyHP_PrepareIterator_Type);
 
 
     return module;
@@ -148,6 +155,8 @@ PyMODINIT_FUNC PyHPInit_compiler(void)
     PyModule_AddObject(module, "TEXT", (PyObject *) PyHP_CommandTypeObject_TEXT);
     PyModule_AddObject(module, "EVAL", (PyObject *) PyHP_CommandTypeObject_EXEC);
     PyModule_AddObject(module, "EXEC", (PyObject *) PyHP_CommandTypeObject_EVAL);
+
+    PyModule_AddObject(module, "command", (PyObject *) &PyHP_Command_Type);
 /*
 
     PyModule_AddObject(module, "precompiler_iterator", (PyObject *) &PyHP_PreCompilerItertor_Type);

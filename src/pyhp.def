@@ -46,3 +46,6 @@ EXPORTS
             PyHP_CommandTypeObject_TEXT
             PyHP_CommandTypeObject_EVAL
             PyHP_CommandTypeObject_EXEC
+
+            PyHP_Command_Type
+            PyHP_Command_Converter

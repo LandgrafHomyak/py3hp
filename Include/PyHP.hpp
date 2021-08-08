@@ -4,7 +4,7 @@
 #define PyHP_HPP
 
 template<typename char_type>
-PyHP_ParserMatch PyHP_Parse(PyHP_ParserState *const state, const char_type *const string, const Py_ssize_t len);
+PyHP_ParserMatch PyHP_Parse(PyHP_ParserState *state, const char_type *string, Py_ssize_t len);
 
 
 template<typename dst_char_type, typename src_char_type>

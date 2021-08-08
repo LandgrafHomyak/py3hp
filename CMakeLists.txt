@@ -31,6 +31,7 @@ python_add_library(
         src/prepare.cpp
 
         src/command_type.c
+        src/command.c
         #src/compiler.c
 )
 set_target_properties(PyHP_api PROPERTIES OUTPUT_NAME pyhp)
@@ -47,6 +48,7 @@ python_add_library(
 )
 set_target_properties(PyHP_api++ PROPERTIES OUTPUT_NAME pyhp++)
 target_link_libraries(PyHP_api++ PUBLIC PyHP_api)
+target_link_libraries(PyHP_api INTERFACE PyHP_api++)
 
 install(
         TARGETS PyHP_api PyHP_api++ DESTINATION pyhp
