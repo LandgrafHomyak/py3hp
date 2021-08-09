@@ -32,7 +32,7 @@ python_add_library(
 
         src/command_type.c
         src/command.c
-        #src/compiler.c
+        src/compiler.c
 )
 set_target_properties(PyHP_api PROPERTIES OUTPUT_NAME pyhp)
 target_include_directories(PyHP_api PUBLIC Include)

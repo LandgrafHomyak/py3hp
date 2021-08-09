@@ -40,24 +40,10 @@ int PyHP_Init(void)
     {
         return -1;
     }
-    /*if (PyType_Ready(&PyHP_ParserIterator_Type))
+    if (PyType_Ready(&(PyHP_CompilerIterator_Type.tp)))
     {
         return -1;
     }
-    if (PyType_Ready(&PyHP_ParserMatch_Type))
-    {
-        return -1;
-    }
-    PyHP_PreCompilerIterator_Type.tp_base = &PyHP_ParserIterator_Type;
-    if (PyType_Ready(&PyHP_PreCompilerIterator_Type))
-    {
-        return -1;
-    }
-    if (PyType_Ready(&PyHP_PreCompilerCommand_Type))
-    {
-        return -1;
-    }
-    */
     return 0;
 }
 
@@ -157,6 +143,7 @@ PyMODINIT_FUNC PyHPInit_compiler(void)
     PyModule_AddObject(module, "EXEC", (PyObject *) PyHP_CommandTypeObject_EVAL);
 
     PyModule_AddObject(module, "command", (PyObject *) &PyHP_Command_Type);
+    PyModule_AddObject(module, "compiler_iterator", (PyObject *) &PyHP_CompilerIterator_Type);
 /*
 
     PyModule_AddObject(module, "precompiler_iterator", (PyObject *) &PyHP_PreCompilerItertor_Type);

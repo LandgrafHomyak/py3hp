@@ -40,7 +40,7 @@ void PyHP_Prepare_Free(PyHP_PrepareStateWithParent *self);
 
 int PyHP_Prepare_Next(PyHP_PrepareStateWithParent *self, PyHP_PrepareResult *dst);
 
-#define PyHP_PrepareIterator_DATA(OBJECT) (((PyHP_PrepareIterator_Object *)(OBJECT))->data)
+#define PyHP_PrepareIterator_DATA(OBJECT) (((PyHP_PrepareState_Object *)(OBJECT))->data)
 
 #ifdef __cplusplus
 }

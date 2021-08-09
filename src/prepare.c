@@ -76,8 +76,8 @@ void PyHP_Prepare_Free(PyHP_PrepareStateWithParent *self)
 
 static void PyHP_PrepareIterator_Dealloc(PyHP_PrepareState_Object *self)
 {
-    Py_XDECREF(self->parent);
     PyHP_Prepare_Free(&(self->data));
+    Py_XDECREF(self->parent);
     Py_TYPE(self)->tp_free(self);
 }
 
