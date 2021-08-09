@@ -161,7 +161,7 @@ PyObject *PyHP_Exec_Func(PyObject *module, PyObject *args, PyObject *kwargs)
     }
 
     meta.parent = PyThreadState_Get();
-    meta.code = &(((PyHP_PageCode_Object *) source)->data);
+    meta.code = &(((PyHP_PageCode_Object *) source)->string);
     if (PyHP_Exec(&meta, globals) != 0)
     {
         return NULL;
