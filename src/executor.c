@@ -233,6 +233,11 @@ PyObject *PyHP_ExecEmbed_Func(PyObject *module, PyObject *args, PyObject *kwargs
                 return NULL;
             }
         }
+        else
+        {
+            globals = orig_globals;
+            Py_INCREF(globals);
+        }
     }
     else
     {
@@ -253,6 +258,7 @@ PyObject *PyHP_ExecEmbed_Func(PyObject *module, PyObject *args, PyObject *kwargs
         Py_DECREF(code);
         return NULL;
     }
+
     Py_DECREF(globals);
     Py_DECREF(code);
     Py_RETURN_NONE;
