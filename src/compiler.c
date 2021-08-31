@@ -207,7 +207,7 @@ PyHP_IteratorMeta_Object PyHP_CompilerIterator_Type = {
 PyHP_CompilerState_Object *PyHP_CompilerIterator_Wrap(PyHP_CompilerStateWithParent *src)
 {
     PyHP_CompilerState_Object *self;
-    self = (PyHP_CompilerState_Object *) PyHP_CompilerIterator_Type.tp.tp_alloc(&(PyHP_ParserIterator_Type.tp), 0);
+    self = (PyHP_CompilerState_Object *) PyHP_CompilerIterator_Type.tp.tp_alloc(&(PyHP_CompilerIterator_Type.tp), 0);
     if (self == NULL)
     {
         PyErr_NoMemory();
@@ -216,105 +216,3 @@ PyHP_CompilerState_Object *PyHP_CompilerIterator_Wrap(PyHP_CompilerStateWithPare
     self->data = *src;
     return self;
 }
-
-
-int PyHP_CompilerIterator_Converter(PyObject *src, PyHP_CompilerState_Object **dst)
-{
-    PyHP_ParserState s;
-
-#if PY_VERSION_HEX >= 0x03010000
-    if (src == NULL)
-    {
-        Py_DECREF(dst);
-    }
-#endif
-
-    if (Py_TYPE(src) == (PyTypeObject *) &PyHP_CompilerIterator_Type)
-    {
-        *dst = (PyHP_CompilerState_Object *) src;
-        Py_INCREF(src);
-#if PY_VERSION_HEX >= 0x03010000
-        return Py_CLEANUP_SUPPORTED;
-#else
-        return 1;
-#endif
-    }
-    else if (PyUnicode_Check(src))
-    {
-        if (PyHP_Parser_FromObject(&s, src) != 0)
-        {
-            return 0;
-        }
-        *dst = PyHP_CompilerIterator_Wrap(&s);
-        if (*dst == NULL)
-        {
-            PyHP_Parser_Free(&s);
-            return 0;
-        }
-        else
-        {
-#if PY_VERSION_HEX >= 0x03010000
-            return Py_CLEANUP_SUPPORTED;
-#else
-            return 1;
-#endif
-        }
-    }
-    else
-    {
-        PyErr_Format(
-            PyExc_TypeError,
-            "Can't convert '%s' object to compiler iterator",
-            Py_TYPE(src)
-        );
-        return 0;
-    }
-#if 0
-    switch (PyHP_ParserState_Converter(src, &s))
-    {
-        case 0:
-            return 0;
-        case 1:
-#if PY_VERSION_HEX >= 0x03010000
-            PyErr_Format(
-                    PyExc_RuntimeError,
-                    "'PyHP_ParserState_Converter' returned value without cleanup support; input type '%R'",
-                    Py_TYPE(src)
-            );
-            return 0;
-        case Py_CLEANUP_SUPPORTED:
-#endif
-            break;
-    }
-    *dst = PyHP_ParserIterator_Embed(&s);
-    if (*dst == NULL)
-    {
-        PyHP_Parser_Free(&s);
-        return 0;
-    }
-
-#if PY_VERSION_HEX >= 0x03010000
-    return Py_CLEANUP_SUPPORTED;
-#else
-    return 1;
-#endif
-#endif
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

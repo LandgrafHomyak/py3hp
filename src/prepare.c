@@ -67,6 +67,7 @@ int PyHP_Prepare_Copy(PyHP_PrepareStateWithParent *self, PyHP_PrepareStateWithPa
 void PyHP_Prepare_Free(PyHP_PrepareStateWithParent *self)
 {
     PyMem_Free(self->self.prepared_string);
+    self->self.prepared_string = NULL;
     if (self->self.parser_state == NULL)
     {
         PyHP_Parser_Free(&(self->parent));

@@ -159,18 +159,16 @@ int PyHP_CompilerOrString_Converter(PyObject *src, PyHP_CompilerState_Object **d
         {
             return 0;
         }
-        if (PyHP_Prepare_FromParser(&pp, &p) != 0)
+        if (PyHP_Prepare_WrapParser(&pp, &p) != 0)
         {
             PyHP_Parser_Free(&p);
             return 0;
         }
-        PyHP_Parser_Free(&p);
-        if (PyHP_Compiler_FromPrepare(&cp, &pp) != 0)
+        if (PyHP_Compiler_WrapPrepare(&cp, &pp) != 0)
         {
             PyHP_Prepare_Free(&pp);
             return 0;
         }
-        PyHP_Prepare_Free(&pp);
         *dst = PyHP_CompilerIterator_Wrap(&cp);
         if (*dst == NULL)
         {
@@ -200,6 +198,7 @@ PyObject *PyHP_ExecEmbed_Func(PyObject *module, PyObject *args, PyObject *kwargs
     PyHP_CompilerState_Object *code;
     PyObject *out_file;
     PyObject *globals = NULL;
+    PyObject *orig_globals;
 
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O&O|O!", kw_list, PyHP_CompilerOrString_Converter, &code, &out_file, &PyDict_Type, &globals))
@@ -207,17 +206,44 @@ PyObject *PyHP_ExecEmbed_Func(PyObject *module, PyObject *args, PyObject *kwargs
         return NULL;
     }
 
-    if (globals == NULL)
+    orig_globals = PyEval_GetGlobals();
+    if (orig_globals == NULL)
     {
-        globals = PyDict_New();
-        if (globals == NULL)
+        if (PyErr_Occurred())
         {
+
             Py_DECREF(code);
             return NULL;
+        }
+        PyErr_WarnFormat(
+            PyExc_RuntimeWarning,
+            -1,
+            "'exec_embed' invoked without python stack frame"
+        );
+    }
+
+    if (globals == NULL)
+    {
+        if (orig_globals == NULL)
+        {
+            globals = PyDict_New();
+            if (globals == NULL)
+            {
+                Py_DECREF(code);
+                return NULL;
+            }
         }
     }
     else
     {
+        if (orig_globals != NULL)
+        {
+            if (PyDict_Merge(globals, orig_globals, 0) != 0)
+            {
+                Py_DECREF(code);
+                return NULL;
+            }
+        }
         Py_INCREF(globals);
     }
 

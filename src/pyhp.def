@@ -59,7 +59,6 @@ EXPORTS
 
             PyHP_CompilerIterator_Type
             PyHP_CompilerIterator_Wrap
-            PyHP_CompilerIterator_Converter
 
 
         PyHPInit_executor

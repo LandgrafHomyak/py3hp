@@ -7,8 +7,8 @@ print()
 print(align_code("   e;lkf\n  j\n      f"))
 
 print()
-r = "<?= a?>dfsdfsdfsdf<?python a?>sdfsdf<?=0?>"
-print(*map(lambda z:"\n".join(map(repr, z)), zip(parse(r), prepare(parse(r)), compiler_iterator(prepare(parse(r))))), sep="\n\n")
+r = "<?= a ?> inner <?python print(b, end='') ?> outer <?= ';' ?>"
+print(*map(lambda z: "\n".join(map(repr, z)), zip(parse(r), prepare(parse(r)), compiler_iterator(prepare(parse(r))))), sep="\n\n")
 print()
 for x in parse(r):
     print(repr(x.value))
@@ -24,6 +24,7 @@ print(repr(RAW), repr(TEXT))
 print(RAW, TEXT)
 
 print()
-exec_embed(compiler_iterator(prepare(parse(r))), sys.stdout, {"a":1})
+g = {"a": "<{", "b": "}>"}
+exec_embed(compiler_iterator(prepare(parse(r))), sys.stdout, g)
 print()
-exec_embed(r, sys.stdout, {"a":1})
+exec_embed(r, sys.stdout, g)
