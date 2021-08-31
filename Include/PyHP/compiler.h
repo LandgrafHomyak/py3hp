@@ -43,6 +43,9 @@ extern PyHP_IteratorMeta_Object PyHP_CompilerIterator_Type;
 
 #define PyHP_CompilerIterator_DATA(OBJECT) (((PyHP_CompilerState_Object *)(OBJECT))->data)
 
+PyHP_CompilerState_Object *PyHP_CompilerIterator_Wrap(PyHP_CompilerStateWithParent *src);
+
+int PyHP_CompilerIterator_Converter(PyObject *src, PyHP_CompilerState_Object **dst);
 
 #ifdef __cplusplus
 }

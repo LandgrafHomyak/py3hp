@@ -13,6 +13,8 @@ PyMODINIT_FUNC PyHPInit_compiler(void);
 
 PyMODINIT_FUNC PyHPInit_types(void);
 
+PyMODINIT_FUNC PyHPInit_executor(void);
+
 #ifdef __cplusplus
 }
 #endif

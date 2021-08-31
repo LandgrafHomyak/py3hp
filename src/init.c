@@ -49,14 +49,14 @@ int PyHP_Init(void)
 
 
 static PyMethodDef PyHPInit_parser_methods[] = {
-        {"align_code", (PyCFunction) PyHP_AlignCode_Func, METH_VARARGS | METH_KEYWORDS},
-        {"parse",      (PyCFunction) PyHP_Parser_Func,    METH_VARARGS},
-        {"prepare",      (PyCFunction) PyHP_Prepare_Func,    METH_VARARGS},
-        {NULL}
+    {"align_code", (PyCFunction) PyHP_AlignCode_Func, METH_VARARGS | METH_KEYWORDS},
+    {"parse",      (PyCFunction) PyHP_Parser_Func,    METH_VARARGS},
+    {"prepare",    (PyCFunction) PyHP_Prepare_Func,   METH_VARARGS},
+    {NULL}
 };
 static PyModuleDef PyHPInit_parser_def = {
-        .m_name = "pyhp.parser",
-        .m_methods = PyHPInit_parser_methods
+    .m_name = "pyhp.parser",
+    .m_methods = PyHPInit_parser_methods
 };
 
 PyMODINIT_FUNC PyHPInit_parser(void)
@@ -90,7 +90,7 @@ PyMODINIT_FUNC PyHPInit_parser(void)
 }
 
 static PyModuleDef PyHPInit_types_def = {
-        .m_name = "pyhp.types",
+    .m_name = "pyhp.types",
 };
 
 PyMODINIT_FUNC PyHPInit_types(void)
@@ -114,12 +114,12 @@ PyMODINIT_FUNC PyHPInit_types(void)
 
 
 static PyMethodDef PyHPInit_compiler_methods[] = {
-        {NULL}
+    {NULL}
 };
 
 static PyModuleDef PyHPInit_compiler_def = {
-        .m_name = "pyhp.compiler",
-        .m_methods = PyHPInit_compiler_methods
+    .m_name = "pyhp.compiler",
+    .m_methods = PyHPInit_compiler_methods
 };
 
 PyMODINIT_FUNC PyHPInit_compiler(void)
@@ -149,6 +149,34 @@ PyMODINIT_FUNC PyHPInit_compiler(void)
     PyModule_AddObject(module, "precompiler_iterator", (PyObject *) &PyHP_PreCompilerItertor_Type);
     PyModule_AddObject(module, "precompiler_command", (PyObject *) &PyHP_PreCompilerCommand_Type);
 */
+
+    return module;
+}
+
+static PyMethodDef PyHPInit_executor_methods[] = {
+    {"exec_embed", (PyCFunction) PyHP_ExecEmbed_Func, METH_VARARGS | METH_KEYWORDS},
+    {NULL}
+};
+
+static PyModuleDef PyHPInit_executor_def = {
+    .m_name = "pyhp.compiler",
+    .m_methods = PyHPInit_executor_methods
+};
+
+PyMODINIT_FUNC PyHPInit_executor(void)
+{
+    PyObject *module;
+
+    if (PyHP_Init() != 0)
+    {
+        return NULL;
+    }
+
+    module = PyModule_Create(&PyHPInit_executor_def);
+    if (module == NULL)
+    {
+        return NULL;
+    }
 
     return module;
 }

@@ -1,65 +1,93 @@
-#include <windows.h>
-
 #include <Python.h>
 #include <PyHP.h>
 
-int PyHP_ExecEmbed(PyHP_PageCode *code, PyObject *globals)
+#include "py_functions.h"
+
+int PyHP_ExecEmbed(PyHP_CompilerStateWithParent *code_iterator, PyObject *out_file, PyObject *globals)
 {
-    PyHP_Task meta = {NULL};
-    Py_ssize_t i;
-    Py_ssize_t len;
-    PyHP_PageCode_Cell cell;
-    PyObject *string;
-    PyObject *result;
+    PyObject *orig_stdout;
+    PyHP_Command command;
+    int ret;
+    PyObject *res_val1;
+    PyObject *res_val2;
 
-
-    len = PyHP_PageCode_SLEN(code);
-    for (i = 0; i < len; i++)
+    orig_stdout = PySys_GetObject("stdout");
+    if (orig_stdout == NULL)
     {
-        meta.o_stdout = PySys_GetObject("stdout");
-
-        cell = PyHP_PageCode_STATEMENTS(code)[i];
-        switch (cell.type)
-        {
-            case PyHP_PageCodeType_TEXT:
-                string = PyHP_DecodeString(PyHP_PageCode_BUFFER(code), cell.value.raw.start, cell.value.raw.len);
-                if (string == NULL)
-                {
-                    return 1;
-                }
-
-
-                result = PyObject_CallMethod(meta.o_stdout, "write", "O", string);
-
-                Py_DECREF(string);
-                if (result == NULL)
-                {
-                    return 1;
-                }
-                Py_DECREF(result);
-
-                break;
-            case PyHP_PageCodeType_EVAL:
-            case PyHP_PageCodeType_EXEC:
-
-                result = PyEval_EvalCode(cell.value.code, globals, globals);
-                if (result == NULL)
-                {
-                    return 1;
-                }
-                if (cell.type == PyHP_PageCodeType_EVAL)
-                {
-                    PyObject_Print(result, stdout, Py_PRINT_RAW);
-                }
-                Py_DECREF(result);
-                break;
-        }
+        return -1;
+    }
+    if (PySys_SetObject("stdout", out_file) != 0)
+    {
+        return -1;
     }
 
-    return 0;
+    ret = -1;
+    while (1)
+    {
+        switch (PyHP_Compiler_Next(code_iterator, &command))
+        {
+            case PyHP_Iterator_NEXT_ERROR:
+                goto restore;
+            case PyHP_Iterator_NEXT_END:
+                break;
+            case PyHP_Iterator_NEXT_SUCCESSFUL:
+                switch (command.type)
+                {
+                    case PyHP_CommandType_TEXT:
+                        res_val1 = PyObject_CallMethod(out_file, "write", "O", command.value);
+                        if (res_val1 == NULL)
+                        {
+                            goto restore;
+                        }
+                        Py_DECREF(res_val1);
+                        break;
+                    case PyHP_CommandType_EVAL:
+                        res_val1 = PyEval_EvalCode(command.value, globals, globals);
+                        if (res_val1 == NULL)
+                        {
+                            goto restore;
+                        }
+                        res_val2 = PyObject_Str(res_val1);
+                        Py_DECREF(res_val1);
+                        if (res_val2 == NULL)
+                        {
+                            goto restore;
+                        }
+                        res_val1 = PyObject_CallMethod(out_file, "write", "O", res_val2);
+                        Py_DECREF(res_val2);
+                        if (res_val1 == NULL)
+                        {
+                            goto restore;
+                        }
+                        Py_DECREF(res_val1);
+                        break;
+                    case PyHP_CommandType_EXEC:
+                        res_val1 = PyEval_EvalCode(command.value, globals, globals);
+                        if (res_val1 == NULL)
+                        {
+                            goto restore;
+                        }
+                        Py_DECREF(res_val1);
+                        break;
+                }
+                continue;
+        }
+        break;
+    }
+
+    ret = 0;
+    restore:
+    if (PySys_SetObject("stdout", orig_stdout) != 0)
+    {
+        return -1;
+    }
+
+    return ret;
+
 }
 
-int PyHP_Exec(PyHP_Task *meta, PyObject *globals)
+#if 0
+int PyHP_Exec(PyHP_CompilerState *code_iterator, PyObject *out_file, PyObject *globals)
 {
     PyThreadState *interpreter;
     interpreter = Py_NewInterpreter();
@@ -67,29 +95,13 @@ int PyHP_Exec(PyHP_Task *meta, PyObject *globals)
     {
         return 1;
     }
-    meta->interpreter = interpreter;
     if (PyThreadState_Get() != interpreter)
     {
         PyThreadState_Swap(interpreter);
     }
 
-
-    if (PySys_SetObject("stdin", meta->o_stdin) != 0)
-    {
-        goto err;
-    }
-    if (PySys_SetObject("stdout", meta->o_stdout) != 0)
-    {
-        goto err;
-    }
-    if (PySys_SetObject("stderr", meta->o_stdout) != 0)
-    {
-        goto err;
-    }
-
     if (PyEval_GetGlobals() != NULL)
     {
-
         if (PyDict_Update(globals, PyEval_GetGlobals()) != 0)
         {
             goto err;
@@ -115,39 +127,112 @@ int PyHP_Exec(PyHP_Task *meta, PyObject *globals)
     PyThreadState_Swap(meta->parent);
     return 1;
 }
+#endif
 
-
-PyObject *PyHP_ExecEmbed_Func(PyObject *module, PyObject *raw_code)
+int PyHP_CompilerOrString_Converter(PyObject *src, PyHP_CompilerState_Object **dst)
 {
-    PyHP_PageCode *code;
-    PyHP_PageCode icode = {NULL};
-    const char *src;
-    Py_ssize_t len;
+    PyHP_ParserState p;
+    PyHP_PrepareStateWithParent pp;
+    PyHP_CompilerStateWithParent cp;
 
-
-    if (PyHP_ExecEmbed(code, PyEval_GetGlobals()) != 0)
+#if PY_VERSION_HEX >= 0x03010000
+    if (src == NULL)
     {
-        goto err;
+        Py_DECREF(*dst);
+        return 1;
     }
+#endif
 
-    if (icode.name != NULL)
+    if (Py_TYPE(src) == (PyTypeObject *) &PyHP_CompilerIterator_Type)
     {
-        PyHP_ReleasePageCode(code);
-        PyHP_ReleaseCompile((PyHP_PageCode_Cell *) (icode.statements), (char *) (icode.buffer));
+        Py_INCREF(src);
+        *dst = (PyHP_CompilerState_Object *) src;
+#if PY_VERSION_HEX >= 0x03010000
+        return Py_CLEANUP_SUPPORTED;
+#else
+        return 1;
+#endif
     }
-
-    Py_RETURN_NONE;
-    err:
-    if (icode.name != NULL)
+    else if (PyUnicode_CheckExact(src))
     {
-        PyHP_ReleasePageCode(code);
-        PyHP_ReleaseCompile((PyHP_PageCode_Cell *) (icode.statements), (char *) (icode.buffer));
+        if (PyHP_Parser_FromObject(&p, src) != 0)
+        {
+            return 0;
+        }
+        if (PyHP_Prepare_FromParser(&pp, &p) != 0)
+        {
+            PyHP_Parser_Free(&p);
+            return 0;
+        }
+        PyHP_Parser_Free(&p);
+        if (PyHP_Compiler_FromPrepare(&cp, &pp) != 0)
+        {
+            PyHP_Prepare_Free(&pp);
+            return 0;
+        }
+        PyHP_Prepare_Free(&pp);
+        *dst = PyHP_CompilerIterator_Wrap(&cp);
+        if (*dst == NULL)
+        {
+            PyHP_Compiler_Free(&cp);
+            return 0;
+        }
+#if PY_VERSION_HEX >= 0x03010000
+        return Py_CLEANUP_SUPPORTED;
+#else
+        return 1;
+#endif
     }
-
-    return NULL;
-
+    else
+    {
+        PyErr_Format(
+            PyExc_TypeError,
+            "Can't compile '%R'",
+            src
+        );
+        return 0;
+    }
 }
 
+PyObject *PyHP_ExecEmbed_Func(PyObject *module, PyObject *args, PyObject *kwargs)
+{
+    static char *kw_list[] = {"", "stdout", "globals", NULL};
+    PyHP_CompilerState_Object *code;
+    PyObject *out_file;
+    PyObject *globals = NULL;
+
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O&O|O!", kw_list, PyHP_CompilerOrString_Converter, &code, &out_file, &PyDict_Type, &globals))
+    {
+        return NULL;
+    }
+
+    if (globals == NULL)
+    {
+        globals = PyDict_New();
+        if (globals == NULL)
+        {
+            Py_DECREF(code);
+            return NULL;
+        }
+    }
+    else
+    {
+        Py_INCREF(globals);
+    }
+
+    if (PyHP_ExecEmbed(&PyHP_CompilerIterator_DATA(code), out_file, globals) != 0)
+    {
+        Py_DECREF(globals);
+        Py_DECREF(code);
+        return NULL;
+    }
+    Py_DECREF(globals);
+    Py_DECREF(code);
+    Py_RETURN_NONE;
+}
+
+#if 0
 PyObject *PyHP_Exec_Func(PyObject *module, PyObject *args, PyObject *kwargs)
 {
     static char *kw_list[] = {"", "globals", "stdin", "stdout", "stderr", NULL};
@@ -170,7 +255,6 @@ PyObject *PyHP_Exec_Func(PyObject *module, PyObject *args, PyObject *kwargs)
     Py_RETURN_NONE;
 
 }
-
 static void PyHP_Task_Dealloc(PyHP_Task_Object *self)
 {
     /* PyHP_ReleaseTask(&(self->data)); */
@@ -178,7 +262,8 @@ static void PyHP_Task_Dealloc(PyHP_Task_Object *self)
 }
 
 PyTypeObject PyHP_Task_Type = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        .tp_name = "py3hp.core.task",
-        .tp_dealloc = (destructor) PyHP_Task_Dealloc,
+    PyVarObject_HEAD_INIT(NULL, 0)
+    .tp_name = "py3hp.core.task",
+    .tp_dealloc = (destructor) PyHP_Task_Dealloc,
 };
+#endif

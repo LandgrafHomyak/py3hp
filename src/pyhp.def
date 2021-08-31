@@ -50,10 +50,19 @@ EXPORTS
             PyHP_Command_Type
             PyHP_Command_Converter
 
-            PyHP_CompilerIterator_Type
             PyHP_Compiler_BindPrepare
             PyHP_Compiler_WrapPrepare
             PyHP_Compiler_FromPrepare
             PyHP_Compiler_Next
             PyHP_Compiler_Copy
             PyHP_Compiler_Free
+
+            PyHP_CompilerIterator_Type
+            PyHP_CompilerIterator_Wrap
+            PyHP_CompilerIterator_Converter
+
+
+        PyHPInit_executor
+            PyHP_ExecEmbed
+
+            PyHP_CompilerOrString_Converter

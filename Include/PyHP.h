@@ -10,6 +10,7 @@
 #include "PyHP/command_type.h"
 #include "PyHP/command.h"
 #include "PyHP/compiler.h"
+#include "PyHP/executor.h"
 
 #ifdef __cplusplus
 extern "C" {

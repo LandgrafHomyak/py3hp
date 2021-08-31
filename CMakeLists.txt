@@ -33,6 +33,8 @@ python_add_library(
         src/command_type.c
         src/command.c
         src/compiler.c
+
+        src/executor.c
 )
 set_target_properties(PyHP_api PROPERTIES OUTPUT_NAME pyhp)
 target_include_directories(PyHP_api PUBLIC Include)
@@ -74,7 +76,17 @@ add_dependencies(python_pyhp_compiler PyHP_api)
 target_link_libraries(python_pyhp_compiler PRIVATE PyHP_api)
 set_target_properties(python_pyhp_compiler PROPERTIES OUTPUT_NAME compiler)
 
+python_add_library(
+        python_pyhp_executor
+        MODULE
+
+        src/modules/executor.c
+)
+add_dependencies(python_pyhp_executor PyHP_api)
+target_link_libraries(python_pyhp_executor PRIVATE PyHP_api)
+set_target_properties(python_pyhp_executor PROPERTIES OUTPUT_NAME executor)
+
 
 install(
-        TARGETS python_pyhp_parser python_pyhp_compiler DESTINATION pyhp
+        TARGETS python_pyhp_parser python_pyhp_compiler python_pyhp_executor DESTINATION pyhp
 )
