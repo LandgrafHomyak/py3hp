@@ -1,33 +1,37 @@
 ## **Installing**
 
-`pip install git+https://github.com/LandgrafHomyak/Python-Hypertext-Preprocessor.git`
+`pip install git+https://github.com/LandgrafHomyak/Python-Hypertext-Preprocessor.git@v0.0.0b1`
 
 ## **Using**
 
 ```python
+import pyhp.executor import exec_embed
 
-# single file
+source = r"""
+<html>
+<body>
+    <?= "Hello, world!" ?>
+    <br>
+    <?python
+        print("From PyHP!")
+    ?>
+    <br>
+    <?= some_var ?>
+</body>
+</html>
+"""
 
-import py3hp
-
-
-page = py3hp.interpret_as_subprocess("""
-    <?python3
-        print("Hello world!")
-        print(url_arguments.args)
-        print(url_arguments.kwargs)
-    ?> 
-""", "abc&def&g=7&h=8&i=9&j=10")
-
-with open("hello_world.txt", "wb") as fout:
-    fout.write(page)
+with open("hello_world.html", "wt") as fout:
+    exec_embed(source, fout, {"some_var": "passed text"})
 ```
-```python
-
-# server
-
-import py3hp
-
-
-py3hp.serve_forever("Z:/www", 8080, "localhost")
+Output will be:
+```html
+<html>
+<body>
+    Hello, world!<br>
+    From PyHP!
+    <br>
+    passed text
+</body>
+</html>
 ```
