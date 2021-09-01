@@ -31,11 +31,11 @@ jobs:
         id: wheel
         if: ${{steps.requirements.outcome == 'success'}}
         run: |
-          python setup.py bdist_egg
+          python setup.py bdist_wheel
         continue-on-error: true
       - name: Store wheel
         if: ${{steps.wheel.outcome == 'success'}}
         uses: actions/upload-artifact@v2
         with:
-          name: eggs
+          name: wheels
           path: dist
