@@ -87,6 +87,9 @@ target_link_libraries(python_pyhp_executor PRIVATE PyHP_api)
 set_target_properties(python_pyhp_executor PROPERTIES OUTPUT_NAME executor)
 
 
+set_target_properties(PyHP_api python_pyhp_parser python_pyhp_compiler python_pyhp_executor PROPERTIES LINKER_LANGUAGE C)
+
+
 install(
         TARGETS python_pyhp_parser python_pyhp_compiler python_pyhp_executor DESTINATION pyhp
 )
