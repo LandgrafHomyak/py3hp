@@ -154,7 +154,7 @@ PyMODINIT_FUNC PyHPInit_compiler(void)
 }
 
 static PyMethodDef PyHPInit_executor_methods[] = {
-    {"exec_embed", (PyCFunction) PyHP_ExecEmbed_Func, METH_VARARGS | METH_KEYWORDS},
+    {"exec", (PyCFunction) PyHP_Exec_Func, METH_VARARGS | METH_KEYWORDS},
     {NULL}
 };
 

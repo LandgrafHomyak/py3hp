@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.17)
 project(PyHP C CXX)
 
 set(CMAKE_C_STANDARD 90)
@@ -9,6 +9,7 @@ find_package(Python COMPONENTS Development)
 if (NOT SKBUILD)
     set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/venv/Lib/site-packages/skbuild/resources/cmake/)
 endif ()
+#find_package(PythonExtensions REQUIRED)
 
 python_add_library(
         PyHP_api
@@ -58,7 +59,7 @@ install(
 
 python_add_library(
         python_pyhp_parser
-        MODULE
+        MODULE WITH_SOABI
 
         src/modules/parser.c
 )
@@ -68,7 +69,7 @@ set_target_properties(python_pyhp_parser PROPERTIES OUTPUT_NAME parser)
 
 python_add_library(
         python_pyhp_compiler
-        MODULE
+        MODULE WITH_SOABI
 
         src/modules/compiler.c
 )
@@ -78,7 +79,7 @@ set_target_properties(python_pyhp_compiler PROPERTIES OUTPUT_NAME compiler)
 
 python_add_library(
         python_pyhp_executor
-        MODULE
+        MODULE WITH_SOABI
 
         src/modules/executor.c
 )

@@ -192,7 +192,7 @@ int PyHP_CompilerOrString_Converter(PyObject *src, PyHP_CompilerState_Object **d
     }
 }
 
-PyObject *PyHP_ExecEmbed_Func(PyObject *module, PyObject *args, PyObject *kwargs)
+PyObject *PyHP_Exec_Func(PyObject *module, PyObject *args, PyObject *kwargs)
 {
     static char *kw_list[] = {"", "stdout", "globals", NULL};
     PyHP_CompilerState_Object *code;

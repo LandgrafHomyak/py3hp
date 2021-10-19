@@ -11,7 +11,9 @@ PyHP_ParserIterator_Object *PyHP_Parser_Func(PyObject *module, PyObject *args);
 PyObject *PyHP_AlignCode_Func(PyObject *module, PyObject *args, PyObject *kwargs);
 
 PyHP_PrepareState_Object *PyHP_Prepare_Func(PyObject *module, PyObject *args);
-PyObject *PyHP_ExecEmbed_Func(PyObject *module, PyObject *args, PyObject *kwargs);
+
+PyObject *PyHP_Exec_Func(PyObject *module, PyObject *args, PyObject *kwargs);
+
 #ifdef __cplusplus
 }
 #endif
